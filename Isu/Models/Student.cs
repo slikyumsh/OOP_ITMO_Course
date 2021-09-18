@@ -8,13 +8,6 @@ namespace Isu.Models
         private string _name;
         private int _id;
 
-        public Student()
-        {
-            _name = "Username";
-            _id = Constants.MinId;
-            Constants.MinId++;
-        }
-
         public Student(string name)
         {
             _name = name;

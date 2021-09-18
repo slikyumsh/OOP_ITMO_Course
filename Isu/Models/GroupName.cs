@@ -1,4 +1,6 @@
 ﻿using System;
+using Isu.Tools;
+
 namespace Isu.Models
 {
     public class GroupName
@@ -7,33 +9,19 @@ namespace Isu.Models
         private int _studyingType;
         private CourseNumber _courseNumber;
         private GroupNumber _groupNumber;
-
-        public GroupName()
+        public GroupName(char letter, int studyingType, int courseNumber, int groupNumber)
         {
-            _letter = 'A';
-            _studyingType = 0;
-            _courseNumber = new CourseNumber();
-            _groupNumber = new GroupNumber();
-        }
-
-        public GroupName(char letter)
-        {
-            if (letter >= 'A' && letter <= 'Z')
-                _letter = letter;
-            else
-                throw new ArgumentOutOfRangeException("_letter", "ArgumentOutOfRange");
-            _studyingType = 0;
-            _courseNumber = new CourseNumber();
-            _groupNumber = new GroupNumber();
-        }
-
-        public GroupName(char letter, int studyingType, CourseNumber courseNumber, GroupNumber groupNumber)
-        {
+            if (letter != 'M' || studyingType != 3)
+                throw new IsuException("Invalid GroupName");
+            _courseNumber = new CourseNumber(courseNumber);
+            _groupNumber = new GroupNumber(groupNumber);
             _letter = letter;
             _studyingType = studyingType;
-            _courseNumber = courseNumber;
-            _groupNumber = groupNumber;
+            Name = Convert.ToString(letter) + Convert.ToString(studyingType) + Convert.ToString(courseNumber) +
+                   Convert.ToString(groupNumber);
         }
+
+        public string Name { get; }
 
         public char Letter
         {

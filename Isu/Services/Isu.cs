@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Isu.Models;
 using Isu.Services;
+using Isu.Tools;
 
 namespace Isu
 {
     public class Isu : IIsuService
     {
         private List<Group> groups = new List<Group>();
-        private List<Student> students = new List<Student>();
-        private Dictionary<Student, Group> arrayOfPairsGroupStudent = new Dictionary<Student, Group>();
 
         public Isu()
         {
@@ -17,97 +17,74 @@ namespace Isu
 
         public Group AddGroup(GroupName name)
         {
-            Group newGroup = new Group(name);
+            var newGroup = new Group(name);
             groups.Add(newGroup);
             return newGroup;
         }
 
         public Student AddStudent(Group group, string name)
         {
-            Student newStudent = new Student(name);
-            arrayOfPairsGroupStudent.Add(newStudent, group);
-            return newStudent;
+            Group desiredGroup = groups.SingleOrDefault(desiredGroup => desiredGroup.GetGroupName == group.GetGroupName);
+            if (desiredGroup == null)
+                throw new IsuException("Can't find the group");
+            var student = new Student(name);
+            desiredGroup.AddStudent(student);
+            return student;
         }
 
         public Student GetStudent(int id)
         {
-            foreach (Student student in students)
-            {
-                if (student.Id == id)
-                    return student;
-            }
-
-            return null;
+            Group group = groups.SingleOrDefault(group => group.FindStudent(id) != null);
+            if (group == null)
+                throw new IsuException("Unable to find student");
+            return group.FindStudent(id);
         }
 
         public Student FindStudent(string name)
         {
-            foreach (Student student in students)
-            {
-                if (student.Name == name)
-                    return student;
-            }
-
-            return null;
+            Group group = groups.SingleOrDefault(group => group.FindStudent(name) != null);
+            if (group == null)
+                throw new IsuException("Unable to find student");
+            return group.FindStudent(name);
         }
 
         public List<Student> FindStudents(GroupName groupName)
         {
-            List<Student> classmates = new List<Student>();
-            foreach (var pair in arrayOfPairsGroupStudent)
-            {
-                if (pair.Value.GetGroupName == groupName)
-                    classmates.Add(pair.Key);
-            }
-
-            return classmates;
-        }
-
-        public Group FindGroup(GroupName groupName)
-        {
-            foreach (Group group in groups)
-            {
-                if (group.GetGroupName == groupName)
-                    return group;
-            }
-
-            return null;
+            Group group = groups.SingleOrDefault(group => group.GetGroupName.Name == groupName.Name);
+            if (group == null)
+                throw new IsuException("Can't find students");
+            return group.GetGroupList;
         }
 
         public List<Student> FindStudents(CourseNumber courseNumber)
         {
-            List<Student> fellowStudents = new List<Student>();
-            foreach (var pair in arrayOfPairsGroupStudent)
-            {
-                if (pair.Value.GetCourseNumber == courseNumber)
-                    fellowStudents.Add(pair.Key);
-            }
+            Group group = groups.SingleOrDefault(group => group.GetGroupName.GetCourseNumber.GetNumber == courseNumber.GetNumber);
+            if (group == null)
+                throw new IsuException("Course doesn't exist");
+            return group.GetGroupList;
+        }
 
-            return fellowStudents;
+        public Group FindGroup(GroupName groupName)
+        {
+            Group group = groups.SingleOrDefault(group => group.GetGroupName.Name == groupName.Name);
+            if (group == null)
+                throw new IsuException("Group doesn't exist");
+            return group;
         }
 
         public List<Group> FindGroups(CourseNumber courseNumber)
         {
-            List<Group> fellowGroups = new List<Group>();
-            foreach (Group group in groups)
-            {
-                if (group.GetCourseNumber == courseNumber)
-                    fellowGroups.Add(group);
-            }
-
-            return fellowGroups;
+            var searchingGroups = groups.Where(group => group.GetGroupName.GetCourseNumber.GetNumber == courseNumber.GetNumber).ToList();
+            if (!searchingGroups.Any())
+                throw new IsuException("There are not any groups with this CourseNumber");
+            return searchingGroups;
         }
 
         public void ChangeStudentGroup(Student student, Group newGroup)
         {
-            foreach (var pair in arrayOfPairsGroupStudent)
-            {
-                if (pair.Key.Id == student.Id && pair.Key.Name == student.Name)
-                {
-                    arrayOfPairsGroupStudent.Remove(student);
-                    arrayOfPairsGroupStudent.Add(student, newGroup);
-                }
-            }
+            Group groupToRemoveStudentFrom = groups.SingleOrDefault(group => group.FindStudent(student.Id) != null);
+            newGroup.AddStudent(student);
+            groupToRemoveStudentFrom.RemoveStudent(student.Id);
         }
     }
 }

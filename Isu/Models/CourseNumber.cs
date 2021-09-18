@@ -6,20 +6,15 @@ namespace Isu.Models
     {
         private int _courseNumber;
 
-        public CourseNumber()
-        {
-            _courseNumber = 1;
-        }
-
         public CourseNumber(int number)
         {
-            if (number > Constants.GradesNumber)
-                _courseNumber = (number % Constants.GradesNumber) + 1;
+            if (number > Constants.GradesNumber || number < 1)
+                throw new IsuException("Invalid CourseNumber");
             else
                 _courseNumber = number;
         }
 
-        public int GetCourseNumber
+        public int GetNumber
         {
             get
             {
