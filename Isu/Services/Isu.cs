@@ -24,7 +24,7 @@ namespace Isu
 
         public Student AddStudent(Group group, string name)
         {
-            Group desiredGroup = groups.SingleOrDefault(desiredGroup => desiredGroup.GetGroupName == group.GetGroupName);
+            Group desiredGroup = groups.SingleOrDefault(desiredGroup => desiredGroup.GroupName == group.GroupName);
             if (desiredGroup == null)
                 throw new IsuException("Can't find the group");
             var student = new Student(name);
@@ -50,23 +50,23 @@ namespace Isu
 
         public List<Student> FindStudents(GroupName groupName)
         {
-            Group group = groups.SingleOrDefault(group => group.GetGroupName.Name == groupName.Name);
+            Group group = groups.SingleOrDefault(group => group.GroupName.Name == groupName.Name);
             if (group == null)
                 throw new IsuException("Can't find students");
-            return group.GetGroupList;
+            return group.GroupList;
         }
 
         public List<Student> FindStudents(CourseNumber courseNumber)
         {
-            Group group = groups.SingleOrDefault(group => group.GetGroupName.GetCourseNumber.GetNumber == courseNumber.GetNumber);
+            Group group = groups.SingleOrDefault(group => group.GroupName.CourseNumber.Number == courseNumber.Number);
             if (group == null)
                 throw new IsuException("Course doesn't exist");
-            return group.GetGroupList;
+            return group.GroupList;
         }
 
         public Group FindGroup(GroupName groupName)
         {
-            Group group = groups.SingleOrDefault(group => group.GetGroupName.Name == groupName.Name);
+            Group group = groups.SingleOrDefault(group => group.GroupName.Name == groupName.Name);
             if (group == null)
                 throw new IsuException("Group doesn't exist");
             return group;
@@ -74,7 +74,7 @@ namespace Isu
 
         public List<Group> FindGroups(CourseNumber courseNumber)
         {
-            var searchingGroups = groups.Where(group => group.GetGroupName.GetCourseNumber.GetNumber == courseNumber.GetNumber).ToList();
+            var searchingGroups = groups.Where(group => group.GroupName.CourseNumber.Number == courseNumber.Number).ToList();
             if (!searchingGroups.Any())
                 throw new IsuException("There are not any groups with this CourseNumber");
             return searchingGroups;

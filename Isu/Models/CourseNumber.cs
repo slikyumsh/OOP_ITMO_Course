@@ -14,12 +14,6 @@ namespace Isu.Models
                 _courseNumber = number;
         }
 
-        public int GetNumber
-        {
-            get
-            {
-                return _courseNumber;
-            }
-        }
+        public int Number => _courseNumber;
     }
 }

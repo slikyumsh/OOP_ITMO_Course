@@ -29,7 +29,7 @@ namespace Isu.Tests
                 Assert.Fail("This student haven't any group");
             if (_isuService.GetStudent(student.Id) != null)
             {
-                if (!group.GetGroupList.Contains(student))
+                if (!group.GroupList.Contains(student))
                     Assert.Fail("This student have another group");
             }
         }

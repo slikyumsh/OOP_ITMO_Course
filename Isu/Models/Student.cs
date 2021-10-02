@@ -5,30 +5,19 @@ namespace Isu.Models
 {
     public class Student
     {
+        private static int _minStudentId = 100000;
         private string _name;
         private int _id;
 
         public Student(string name)
         {
             _name = name;
-            _id = Constants.MinId;
-            Constants.MinId++;
+            _id = _minStudentId;
+            _minStudentId++;
         }
 
-        public string Name
-        {
-            get
-            {
-                return _name;
-            }
-        }
+        public string Name => _name;
 
-        public int Id
-        {
-            get
-            {
-                return _id;
-            }
-        }
+        public int Id => _id;
     }
 }

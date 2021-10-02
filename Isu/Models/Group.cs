@@ -8,56 +8,43 @@ namespace Isu.Models
     public class Group
     {
         private GroupName _groupName;
-        private List<Student> _groupList;
+        private List<Student> _students;
         private int maxNumberOfStudents = 25;
 
         public Group(GroupName groupName)
         {
             _groupName = groupName;
-            _groupList = new List<Student>();
+            _students = new List<Student>();
         }
 
-        public GroupName GetGroupName
-        {
-            get
-            {
-                return _groupName;
-            }
-        }
+        public GroupName GroupName => _groupName;
 
-        public List<Student> GetGroupList
-        {
-            get
-            {
-                return _groupList;
-            }
-        }
+        public List<Student> GroupList => _students;
 
         public Student AddStudent(Student student)
         {
-            if (_groupList.Count == maxNumberOfStudents)
+            if (_students.Count == maxNumberOfStudents)
                 throw new IsuException("A lot of students at one group");
-            _groupList.Add(student);
+            _students.Add(student);
             return student;
         }
 
         public Student FindStudent(string name)
         {
-            Student desiredStudent = _groupList.SingleOrDefault(desiredStudent => desiredStudent.Name == name);
+            Student desiredStudent = _students.SingleOrDefault(desiredStudent => desiredStudent.Name == name);
             return desiredStudent;
         }
 
         public Student FindStudent(int id)
         {
-            Student desiredStudent = _groupList.SingleOrDefault(desiredStudent => desiredStudent.Id == id);
+            Student desiredStudent = _students.SingleOrDefault(desiredStudent => desiredStudent.Id == id);
             return desiredStudent;
         }
 
-        public Student RemoveStudent(int id)
+        public void RemoveStudent(int id)
         {
-            Student student = _groupList.SingleOrDefault(student => student.Id == id);
-            _groupList.Remove(student);
-            return student;
+            Student student = _students.SingleOrDefault(student => student.Id == id);
+            _students.Remove(student);
         }
     }
 }

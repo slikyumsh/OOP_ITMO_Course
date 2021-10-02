@@ -10,16 +10,9 @@ namespace Isu.Models
         {
             if (number > Constants.MaxNumberOfGroups || number < 0)
                 throw new IsuException("Invalid GroupNumber");
-            else
-                _groupNumber = number;
+            _groupNumber = number;
         }
 
-        public int NumberGroup
-        {
-            get
-            {
-                return _groupNumber;
-            }
-        }
+        public int NumberGroup => _groupNumber;
     }
 }

@@ -17,42 +17,17 @@ namespace Isu.Models
             _groupNumber = new GroupNumber(groupNumber);
             _letter = letter;
             _studyingType = studyingType;
-            Name = Convert.ToString(letter) + Convert.ToString(studyingType) + Convert.ToString(courseNumber) +
-                   Convert.ToString(groupNumber);
+            Name = $"{letter}{studyingType}{courseNumber}{groupNumber}";
         }
 
         public string Name { get; }
 
-        public char Letter
-        {
-            get
-            {
-                return _letter;
-            }
-        }
+        public char Letter => _letter;
 
-        public int StudyingType
-        {
-            get
-            {
-                return _studyingType;
-            }
-        }
+        public int StudyingType => _studyingType;
 
-        public CourseNumber GetCourseNumber
-        {
-            get
-            {
-                return _courseNumber;
-            }
-        }
+        public CourseNumber CourseNumber => _courseNumber;
 
-        public GroupNumber GetNumber
-        {
-            get
-            {
-                return _groupNumber;
-            }
-        }
+        public GroupNumber Number => _groupNumber;
     }
 }
