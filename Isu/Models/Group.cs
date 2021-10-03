@@ -31,7 +31,7 @@ namespace Isu.Models
 
         public Student FindStudent(string name)
         {
-            Student desiredStudent = _students.SingleOrDefault(desiredStudent => desiredStudent.Name == name);
+            Student desiredStudent = _students.FirstOrDefault(desiredStudent => desiredStudent.Name == name);
             return desiredStudent;
         }
 

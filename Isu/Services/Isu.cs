@@ -42,7 +42,7 @@ namespace Isu
 
         public Student FindStudent(string name)
         {
-            Group group = groups.SingleOrDefault(group => group.FindStudent(name) != null);
+            Group group = groups.FirstOrDefault(group => group.FindStudent(name) != null);
             if (group == null)
                 throw new IsuException("Unable to find student");
             return group.FindStudent(name);
