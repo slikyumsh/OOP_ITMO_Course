@@ -23,4 +23,22 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Models\Buyer.cs">
+      <Link>Models\Buyer.cs</Link>
+    </Compile>
+    <Compile Include="..\Models\Product.cs">
+      <Link>Models\Product.cs</Link>
+    </Compile>
+    <Compile Include="..\Models\ProductInfo.cs">
+      <Link>Models\ProductInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Models\Shop.cs">
+      <Link>Models\Shop.cs</Link>
+    </Compile>
+    <Compile Include="..\Models\ShopManager.cs">
+      <Link>Models\ShopManager.cs</Link>
+    </Compile>
+  </ItemGroup>
+
 </Project>
