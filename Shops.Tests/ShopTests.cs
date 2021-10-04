@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Shops;
 using Shops.Models;
+
 namespace Shops.Tests
 {
     public class ShopTests
