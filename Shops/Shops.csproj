@@ -36,6 +36,9 @@
     <Compile Include="..\Models\Shop.cs">
       <Link>Models\Shop.cs</Link>
     </Compile>
+    <Compile Include="..\Models\ShopListForBuyer.cs">
+      <Link>Models\ShopListForBuyer.cs</Link>
+    </Compile>
     <Compile Include="..\Models\ShopManager.cs">
       <Link>Models\ShopManager.cs</Link>
     </Compile>

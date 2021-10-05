@@ -9,6 +9,10 @@ namespace Shops.Models
 
         public ProductInfo(int cost, int count)
         {
+            if (cost <= 0)
+                throw new ArgumentException("Negative/zero cost of product");
+            if (count <= 0)
+                throw new ArgumentException("Negative/zero count of product");
             _cost = cost;
             _count = count;
         }
@@ -16,33 +20,27 @@ namespace Shops.Models
         public int Cost => _cost;
         public int Count => _count;
 
-        public void IncChangeCount(int count)
+        public void IncrementCount(int count)
         {
+            if (count <= 0)
+                throw new ArgumentException("Invalid argument in IncrementCount");
             _count += count;
         }
 
-        public void DecChangeCount(int count)
+        public void DecrementCount(int count)
         {
-            if (count <= _count)
-            {
-                _count -= count;
-            }
-            else
-            {
-                throw new Exception("Can't minus count of product");
-            }
+            if (count <= 0)
+                throw new ArgumentException("Invalid argument in DecrementCount");
+            if (count > _count)
+                throw new ArgumentException("Can't decrement count of product : not enough products");
+            _count -= count;
         }
 
         public void ChangeCost(int cost)
         {
-            if (cost >= 0)
-            {
-                _cost = cost;
-            }
-            else
-            {
-                throw new Exception("Incorrect cost of product");
-            }
+            if (cost <= 0)
+                throw new Exception("Invalid cost of product");
+            _cost = cost;
         }
     }
 }

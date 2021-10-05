@@ -23,19 +23,18 @@ namespace Shops.Models
 
         public string Name => _name;
         public int Id => _id;
-        public Dictionary<Product, ProductInfo> ProductList => _productList;
         public int Earning => _earnings;
 
-        public Product Add(Product product, int quantity, int shopCost)
+        public Product Add(Product product, ProductInfo productInfo)
         {
             if (_productList.Keys.Contains(product))
             {
-                _productList[product].IncChangeCount(quantity);
-                _productList[product].ChangeCost(shopCost);
+                _productList[product].IncrementCount(productInfo.Count);
+                _productList[product].ChangeCost(productInfo.Cost);
             }
             else
             {
-                _productList.Add(product, new ProductInfo(shopCost, quantity));
+                _productList.Add(product, productInfo);
             }
 
             return product;
@@ -43,29 +42,19 @@ namespace Shops.Models
 
         public void Remove(Product product, int quantity)
         {
-            if (_productList.Keys.Contains(product))
-            {
-                if (_productList[product].Count >= quantity)
-                {
-                    _productList[product].DecChangeCount(quantity);
-                }
-                else
-                {
-                    throw new Exception("Not enough products");
-                }
-            }
-            else
-            {
-                throw new Exception("Haven't product with this name at this shop");
-            }
+            if (!_productList.Keys.Contains(product))
+                throw new ArgumentException("Haven't product with this name at this shop");
+            if (_productList[product].Count < quantity)
+                throw new ArgumentException("Not enough products");
+            _productList[product].DecrementCount(quantity);
         }
 
-        public Product FindProduct(Product product, int quantity)
+        public Product FindProduct(string name)
         {
+            Product product = new Product(name);
             if (_productList.Keys.Contains(product))
                 return product;
-            else
-                return null;
+            return null;
         }
 
         public Product FindProduct(Product product)
@@ -75,12 +64,12 @@ namespace Shops.Models
             return null;
         }
 
-        public int ProductCost(Product product)
+        public int GetProductCost(Product product)
         {
-            Product desiredProduct = FindProduct(product);
-            if (desiredProduct != null)
-                return _productList[product].Cost;
-            return 0;
+            Product desiredProduct = FindProduct(product.Name);
+            if (desiredProduct == null)
+                throw new ArgumentException("Invalid argument");
+            return _productList[product].Cost;
         }
 
         public bool IsEnoughProduct(Product product, int quantity)
@@ -96,12 +85,14 @@ namespace Shops.Models
         public void ChangeCost(Product product, int newCost)
         {
             if (!_productList.Keys.Contains(product))
-                throw new Exception("There is no product with this name");
+                throw new ArgumentException("There is no product with this name");
             _productList[product].ChangeCost(newCost);
         }
 
         public void Sell(int sum)
         {
+            if (sum <= 0)
+                throw new ArgumentException("Negative or zero sum");
             _earnings += sum;
         }
     }

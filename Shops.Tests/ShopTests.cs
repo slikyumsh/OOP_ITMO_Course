@@ -8,30 +8,59 @@ namespace Shops.Tests
 {
     public class ShopTests
     {
-        [Test]
-        public void AddProduct_ProductAddedAndItCanBeBought()
+        private ShopManager manager;
+        [SetUp]
+        public void Setup()
         {
-            ShopManager manager = new ShopManager();
+            manager = new ShopManager();
+        }
+        
+        [Test]
+        public void SuccesTryFindProduct()
+        {
             Shop shop = new Shop("Volvo");
             manager.Add(shop);
             Product product = new Product("XC70");
-            shop.Add(product, 10, 1001);
-            Dictionary<Product, int> shopList = new Dictionary<Product, int>();
+            shop.Add(product, new ProductInfo(10, 1001));
+            Product result = shop.FindProduct(product);
+            Assert.AreEqual(product,result );
+        }
+        
+        [Test]
+        public void FailedTryFindProduct()
+        {
+            Shop shop = new Shop("Volvo");
+            manager.Add(shop);
+            Product product = new Product("XC70");
+            Product fakeProduct = new Product("XC90");
+            shop.Add(product, new ProductInfo(10, 1001));
+            Product result = shop.FindProduct(fakeProduct);
+            Assert.AreEqual(null,result);
+        }
+        
+         [Test]
+        public void AddProduct_ProductAddedAndItCanBeBought()
+        {
+            Shop shop = new Shop("Volvo");
+            manager.Add(shop);
+            Product product = new Product("XC70");
+            shop.Add(product, new ProductInfo(1001, 10));
+            ShopListForBuyer shopList = new ShopListForBuyer();
             shopList.Add(product, 2);
             Buyer person = new Buyer(10000);
             manager.Buy(shopList, shop, person);
             Assert.AreEqual(2002, shop.Earning);
         }
 
-        [Test]
+         [Test]
         public void AddProduct_SetProductCost()
         {
             ShopManager manager = new ShopManager();
             Shop shop = new Shop("Audi");
             manager.Add(shop);
             Product product = new Product("R8");
-            shop.Add(product, 100, 10010);
-            int nowCost = shop.ProductCost(product);
+            shop.Add(product, new ProductInfo(10010, 100));
+            int nowCost = shop.GetProductCost(product);
             Assert.AreEqual(10010, nowCost);
         } 
         
@@ -42,9 +71,9 @@ namespace Shops.Tests
             Shop shop = new Shop("Audi");
             manager.Add(shop);
             Product product = new Product("R8");
-            shop.Add(product, 10, 10010);
+            shop.Add(product, new ProductInfo(10, 10010));
             shop.ChangeCost(product, 20000);
-            int nowCost = shop.ProductCost(product);
+            int nowCost = shop.GetProductCost(product);
             Assert.AreEqual(20000, nowCost);
         } 
         
@@ -59,11 +88,10 @@ namespace Shops.Tests
             manager.Add(shop2);
             manager.Add(shop3);
             Product product = new Product("R8");
-            shop1.Add(product, 2, 10000);
-            shop2.Add(product, 3, 5000);
-            shop3.Add(product, 1, 1000);
-            //Assert.AreEqual(1000, shop2.ProductCost(product));
-            Dictionary<Product, int> shopList = new Dictionary<Product, int>();
+            shop1.Add(product, new ProductInfo(2, 10000));
+            shop2.Add(product, new ProductInfo(3, 5000));
+            shop3.Add(product, new ProductInfo(1, 1000));
+            ShopListForBuyer shopList = new ShopListForBuyer();
             shopList.Add(product, 1);
             Shop shop = manager.FindShopWithMinPrice(shopList);
             Assert.AreEqual(shop3.Id, shop.Id);
@@ -78,17 +106,17 @@ namespace Shops.Tests
             Product product1 = new Product("R8");
             Product product2 = new Product("Rsi");
             Product product3 = new Product("Q7");
-            shop.Add(product1, 2, 10000);
-            shop.Add(product2, 3, 15000);
-            shop.Add(product3, 1, 8000);
-            Dictionary<Product, int> shopList = new Dictionary<Product, int>();
+            shop.Add(product1, new ProductInfo(1000, 2));
+            shop.Add(product2, new ProductInfo(1500, 3));
+            shop.Add(product3, new ProductInfo(8000, 1));
+            ShopListForBuyer shopList = new ShopListForBuyer();
             shopList.Add(product1, 1);
             shopList.Add(product3, 1);
             Buyer person = new Buyer(1000000);
-            int money = manager.PriceForBuyAtThisShop(shopList, shop);
+            int money = manager.GetPriceForBuyAtThisShop(shopList, shop);
             person.Buy(money);
             shop.Sell(money);
-            Assert.AreEqual(18000, shop.Earning);
+            Assert.AreEqual(9000, shop.Earning);
         }
     }
 }

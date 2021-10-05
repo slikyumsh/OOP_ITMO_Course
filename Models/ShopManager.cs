@@ -6,7 +6,6 @@ namespace Shops.Models
 {
     public class ShopManager
     {
-        private const int MaxValue = 1000000000;
         private List<Shop> _listOfShops;
         private List<Buyer> _users;
 
@@ -26,69 +25,61 @@ namespace Shops.Models
 
         public Shop Add(Shop shop)
         {
-            if (!_listOfShops.Contains(shop))
-            {
-                _listOfShops.Add(shop);
-                return shop;
-            }
-
-            throw new Exception("We have already have this shop at _listOfShops");
-        }
-
-        public Shop FindShop(Shop shop)
-        {
-            Shop desiredShop = FindShop(shop.Id);
-            return desiredShop;
+            if (_listOfShops.Contains(shop))
+                throw new ArgumentException("We have already have this shop at _listOfShops");
+            _listOfShops.Add(shop);
+            return shop;
         }
 
         public Product FindProduct(Product product, Shop shop)
         {
-            Shop desiredShop = FindShop(shop);
+            if (product == null)
+                throw new ArgumentException("Invalid value of product");
+            if (shop == null)
+                throw new ArgumentException("Invalid value of shop");
+            Shop desiredShop = FindShop(shop.Id);
             if (desiredShop == null)
-                return null;
-            Product desiredProduct = shop.FindProduct(product, 1);
+                throw new ArgumentException("There are not any shop with this name");
+            Product desiredProduct = shop.FindProduct(product.Name);
             return desiredProduct;
         }
 
-        public Shop FindShopWithMinPrice(Dictionary<Product, int> shopList)
+        public Shop FindShopWithMinPrice(ShopListForBuyer shopList)
         {
-            int minSum = MaxValue;
+            int minSum = int.MaxValue;
             Shop potentialAnswer = null;
             foreach (var shop in _listOfShops)
             {
-                int cnt = 0;
                 int currentSum = 0;
-                foreach (var pair in shopList)
+                foreach (var pair in shopList.ShopList)
                 {
-                    if (shop.IsEnoughProduct(pair.Key, pair.Value))
+                    if (!shop.IsEnoughProduct(pair.Key, pair.Value))
                     {
-                        cnt++;
-                        int cost = shop.ProductCost(pair.Key);
-                        currentSum += cost * pair.Value;
+                        continue;
                     }
+
+                    int cost = shop.GetProductCost(pair.Key);
+                    currentSum += cost * pair.Value;
                 }
 
-                if (cnt == shopList.Count)
+                if (minSum > currentSum)
                 {
-                    if (minSum > currentSum)
-                    {
-                        minSum = currentSum;
-                        potentialAnswer = shop;
-                    }
+                    minSum = currentSum;
+                    potentialAnswer = shop;
                 }
             }
 
             return potentialAnswer;
         }
 
-        public int PriceForBuyAtThisShop(Dictionary<Product, int> shopList, Shop shop)
+        public int GetPriceForBuyAtThisShop(ShopListForBuyer shopList, Shop shop)
         {
             int sum = 0;
-            foreach (var pair in shopList)
+            foreach (var pair in shopList.ShopList)
             {
                 if (!shop.IsEnoughProduct(pair.Key, pair.Value))
-                    return -1;
-                sum += shop.ProductCost(pair.Key) * pair.Value;
+                    throw new ArgumentException("Can't buy ShopList at this shop");
+                sum += shop.GetProductCost(pair.Key) * pair.Value;
             }
 
             return sum;
@@ -96,18 +87,21 @@ namespace Shops.Models
 
         public Buyer AddBuyer(Buyer person)
         {
-            if (FindUser(person) == null)
-                _users.Add(person);
-            return FindUser(person);
+            if (FindUser(person) != null)
+                throw new ArgumentException("We already have this buyer");
+            _users.Add(person);
+            return person;
         }
 
-        public void Buy(Dictionary<Product, int> shopList, Shop shop, Buyer person)
+        public void Buy(ShopListForBuyer shopList, Shop shop, Buyer person)
         {
-            int result = PriceForBuyAtThisShop(shopList, shop);
-            if (result == -1)
-                throw new Exception("Can't buy these products at this shop");
+            int result = GetPriceForBuyAtThisShop(shopList, shop);
             person.Buy(result);
             shop.Sell(result);
+            foreach (var productFromShoplist in shopList.ShopList)
+            {
+                shop.Remove(productFromShoplist.Key, productFromShoplist.Value);
+            }
         }
 
         private Buyer FindUser(Buyer person)

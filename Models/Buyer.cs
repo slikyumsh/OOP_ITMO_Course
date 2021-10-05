@@ -10,7 +10,7 @@ namespace Shops.Models
         public Buyer(int money)
         {
             if (money < 0)
-                throw new Exception("Negative money");
+                throw new ArgumentException("Negative money");
             _money = money;
             _id++;
         }
@@ -18,10 +18,9 @@ namespace Shops.Models
         public int Id => _id;
         public void Buy(int sum)
         {
-            if (_money > sum)
-                _money -= sum;
-            else
-                throw new Exception("Not enough money");
+            if (_money < sum)
+                throw new ArgumentException("Not enough money");
+            _money -= sum;
         }
     }
 }
