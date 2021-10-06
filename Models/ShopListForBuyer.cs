@@ -22,8 +22,9 @@ namespace Shops.Models
             if (quantity <= 0)
                 throw new ArgumentException("Quantity <= 0");
             if (_shopListForBuyer.Keys.Contains(product))
-                throw new ArgumentException("We have already chosen this product");
-            _shopListForBuyer.Add(product, quantity);
+                _shopListForBuyer[product] += quantity;
+            else
+                _shopListForBuyer.Add(product, quantity);
         }
     }
 }

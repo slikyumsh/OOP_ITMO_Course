@@ -14,6 +14,12 @@ namespace Shops.Tests
         {
             manager = new ShopManager();
         }
+
+        [Test]
+        public void SuccesProductEquals()
+        {
+            Assert.True(new Product("q").Equals((object)new Product("q")));
+        }
         
         [Test]
         public void SuccesTryFindProduct()
@@ -22,7 +28,7 @@ namespace Shops.Tests
             manager.Add(shop);
             Product product = new Product("XC70");
             shop.Add(product, new ProductInfo(10, 1001));
-            Product result = shop.FindProduct(product);
+            Product result = shop.FindProduct(product.Name);
             Assert.AreEqual(product,result );
         }
         
@@ -34,7 +40,7 @@ namespace Shops.Tests
             Product product = new Product("XC70");
             Product fakeProduct = new Product("XC90");
             shop.Add(product, new ProductInfo(10, 1001));
-            Product result = shop.FindProduct(fakeProduct);
+            Product result = shop.FindProduct(fakeProduct.Name);
             Assert.AreEqual(null,result);
         }
         
@@ -78,7 +84,7 @@ namespace Shops.Tests
         } 
         
         [Test]
-        public void FindShopWithMinPrice()
+        public void FindShopWherePriceOfProductFromShoplistMinimal()
         {
             ShopManager manager = new ShopManager();
             Shop shop1 = new Shop("AudiMoscow");
@@ -98,11 +104,10 @@ namespace Shops.Tests
         }
         
         [Test]
-        public void CorrectBuyShopList()
+        public void SuccessfulBuyOfProductsFromShoplistAtThisShop()
         {
             ShopManager manager = new ShopManager();
             Shop shop = new Shop("AudiMoscow");
-            
             Product product1 = new Product("R8");
             Product product2 = new Product("Rsi");
             Product product3 = new Product("Q7");

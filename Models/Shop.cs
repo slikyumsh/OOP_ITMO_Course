@@ -57,13 +57,6 @@ namespace Shops.Models
             return null;
         }
 
-        public Product FindProduct(Product product)
-        {
-            if (_productList.Keys.Contains(product))
-                return product;
-            return null;
-        }
-
         public int GetProductCost(Product product)
         {
             Product desiredProduct = FindProduct(product.Name);

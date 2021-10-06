@@ -2,9 +2,9 @@
 
 namespace Shops.Models
 {
-    public class Product : IEquatable<Product>
+    public class Product
     {
-        private string _name;
+        private readonly string _name;
 
         public Product(string name)
         {
@@ -15,36 +15,19 @@ namespace Shops.Models
 
         public string Name => _name;
 
-        public static bool operator ==(Product product1, Product product2)
+        public override bool Equals(object obj)
         {
-            if (product1 is not null)
-                return product1.Equals(product2);
-            if (product2 is null)
+            if (obj == null || !(obj is Product))
             {
-                return true;
+                return false;
             }
 
-            return false;
-        }
-
-        public static bool operator !=(Product a, Product b) => !(a == b);
-
-        public bool Equals(Product objProduct)
-        {
-            if (objProduct == null)
-                return false;
-
-            return objProduct.Name == _name;
+            return _name == ((Product)obj).Name;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(_name);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
+            return _name.GetHashCode();
         }
     }
 }
