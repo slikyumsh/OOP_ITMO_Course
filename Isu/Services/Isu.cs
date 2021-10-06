@@ -15,9 +15,9 @@ namespace Isu
         {
         }
 
-        public Group AddGroup(GroupName name)
+        public Group AddGroup(GroupName groupName)
         {
-            var newGroup = new Group(name);
+            var newGroup = new Group(groupName);
             groups.Add(newGroup);
             return newGroup;
         }

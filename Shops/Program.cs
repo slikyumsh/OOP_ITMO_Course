@@ -1,4 +1,7 @@
-﻿namespace Shops
+﻿using System;
+using Shops.Models;
+
+namespace Shops
 {
     internal class Program
     {
