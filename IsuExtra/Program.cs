@@ -1,4 +1,4 @@
-﻿namespace IsuExtra
+﻿namespace IsuExtra.Models
 {
     internal class Program
     {
