@@ -19,7 +19,7 @@ namespace IsuExtra.Tests
         [Test]
         public void AddOgnp()
         {
-            var ognpCourse = new OgnpCourse('M');
+            var ognpCourse = new OgnpCourse(ExtraFaculty.MKTU);
             _service.AddOgnpCourse(ognpCourse);
             Assert.AreEqual(1,_service.NumberOfCourses() );
         }
@@ -29,63 +29,64 @@ namespace IsuExtra.Tests
         {
             var time1 = new DateTime(2008, 11, 10, 11, 0, 0);
             var time2 = new DateTime(2008, 11, 10, 12, 0, 0);
-            var lesson1 = new Lesson(time1, 'M', "OOP", new Cabinet(), new Professor());
-            var lesson2 = new Lesson(time2, 'M', "OOP", new Cabinet(), new Professor());
+            var lesson1 = new Lesson(time1, ExtraFaculty.FTMI, "OOP", new Cabinet(1), new Professor());
+            var lesson2 = new Lesson(time2, ExtraFaculty.MBiNS, "OOP", new Cabinet(2), new Professor());
             Assert.AreEqual(true,lesson1.IsIntersect(lesson2));
         }
 
         [Test]
         public void SuccesEnrollStudentToThisOgnp()
         {
-            var student = new OgnpStudent("DIMA");
+            var student = new ExtraStudent("DIMA");
             var groupName = new GroupName('M', 3, 2, 11);
             var mainGroup = new RegularGroup(groupName);
             _service.AddRegularGroup(mainGroup);
             mainGroup.AddStudent(student);
-            var ognpCourse = new OgnpCourse('A');
-            var groupName2 = new GroupName('A', 3, 2, 10);
+            
+            var ognpCourse = new OgnpCourse(ExtraFaculty.FTMI);
+            var groupName2 = new GroupName('C', 3, 2, 10);
             var ognpGroup = new OgnpGroup(groupName2);
-            var flow = new OgnpFlow('A');
+            var flow = new OgnpFlow(ExtraFaculty.FTMI);
             flow.AddOgnpGroup(ognpGroup);
             ognpCourse.AddFlow(flow);
             _service.AddOgnpCourse(ognpCourse);
             _service.EnrollStudentOnCourse(student, ognpCourse);
-            Assert.AreEqual(1, student.OgnpStatus() );
+            Assert.AreEqual(OgnpStatus.OneOgnp, student.OgnpStatus );
         }
         
         [Test]
         public void FailEnrollStudentToThisOgnp()
         {
-            var student = new OgnpStudent("DIMA");
+            var student = new ExtraStudent("DIMA");
             var groupName = new GroupName('M', 3, 2, 11);
             var mainGroup = new RegularGroup(groupName);
             _service.AddRegularGroup(mainGroup);
             mainGroup.AddStudent(student);
-            var ognpCourse = new OgnpCourse('M');
+            var ognpCourse = new OgnpCourse(ExtraFaculty.FITiP);
             var groupName2 = new GroupName('M', 3, 2, 10);
             var ognpGroup = new OgnpGroup(groupName2);
-            var flow = new OgnpFlow('M');
+            var flow = new OgnpFlow(ExtraFaculty.FITiP);
             flow.AddOgnpGroup(ognpGroup);
             ognpCourse.AddFlow(flow);
             _service.AddOgnpCourse(ognpCourse);
             _service.EnrollStudentOnCourse(student, ognpCourse);
-            Assert.AreEqual(0, student.OgnpStatus() );
+            Assert.AreEqual(OgnpStatus.NotRecorded, student.OgnpStatus );
         }
         
         [Test]
         public void GetFlowsByCourse()
         {
-            var flow1 = new OgnpFlow('A');
-            var flow2 = new OgnpFlow('A');
-            var flow3 = new OgnpFlow('A');
-            var flow4 = new OgnpFlow('A');
-            var ognpCourse = new OgnpCourse('A');
+            var flow1 = new OgnpFlow(ExtraFaculty.IMRP);
+            var flow2 = new OgnpFlow(ExtraFaculty.IMRP);
+            var flow3 = new OgnpFlow(ExtraFaculty.IMRP);
+            var flow4 = new OgnpFlow(ExtraFaculty.IMRP);
+            var ognpCourse = new OgnpCourse(ExtraFaculty.IMRP);
             _service.AddOgnpCourse(ognpCourse);
             ognpCourse.AddFlow(flow1);
             ognpCourse.AddFlow(flow2);
             ognpCourse.AddFlow(flow3);
             ognpCourse.AddFlow(flow4);
-            List<OgnpFlow> result = ognpCourse.Flows();
+            List<OgnpFlow> result = ognpCourse.Flows;
             Assert.AreEqual(4, result.Count);
         }
         
@@ -94,15 +95,15 @@ namespace IsuExtra.Tests
         {
             var groupName = new GroupName('M', 3, 2, 11);
             var ognpGroup = new OgnpGroup(groupName);
-            var student1 = new OgnpStudent("DIMA");
-            var student2 = new OgnpStudent("Sasha");
-            var student3 = new OgnpStudent("Misha");
+            var student1 = new ExtraStudent("DIMA");
+            var student2 = new ExtraStudent("Sasha");
+            var student3 = new ExtraStudent("Misha");
             ognpGroup.AddStudent(student1);
             ognpGroup.AddStudent(student2);
             ognpGroup.AddStudent(student3);
-            List<OgnpStudent> result = ognpGroup.GetSudentList();
+            List<ExtraStudent> result = ognpGroup.GroupList;
             string answer = "";
-            foreach (OgnpStudent student in result)
+            foreach (ExtraStudent student in result)
             {
                 answer += student.Name;
             }
@@ -115,23 +116,23 @@ namespace IsuExtra.Tests
             var groupName = new GroupName('M', 3, 2, 11);
             var group = new RegularGroup(groupName);
             _service.AddRegularGroup(group);
-            var student1 = new OgnpStudent("DIMA");
-            var student2 = new OgnpStudent("Sasha");
-            var student3 = new OgnpStudent("Misha");
+            var student1 = new ExtraStudent("DIMA");
+            var student2 = new ExtraStudent("Sasha");
+            var student3 = new ExtraStudent("Misha");
             group.AddStudent(student1);
             group.AddStudent(student2);
             group.AddStudent(student3);
-            var groupName1 = new GroupName('A', 3, 2, 11);
+            var groupName1 = new GroupName('C', 3, 2, 11);
             var ognpGroup = new OgnpGroup(groupName1);
             ognpGroup.AddStudent(student1);
-            var flow = new OgnpFlow('A');
-            var course = new OgnpCourse('A');
+            var flow = new OgnpFlow(ExtraFaculty.FTMI);
+            var course = new OgnpCourse(ExtraFaculty.FTMI);
             flow.AddOgnpGroup(ognpGroup);
             course.AddFlow(flow);
             _service.AddOgnpCourse(course);
-            List<OgnpStudent> result = _service.GetListOfNotRecordedStudentsFromThisGroup(group);
+            List<ExtraStudent> result = _service.GetListOfNotRecordedStudentsFromThisGroup(group);
             string answer = "";
-            foreach (OgnpStudent student in result)
+            foreach (ExtraStudent student in result)
             {
                 answer += student.Name;
             }
@@ -141,21 +142,21 @@ namespace IsuExtra.Tests
         [Test]
         public void RemoveEntryForOgnpforStudent()
         {
-            var student = new OgnpStudent("DIMA");
+            var student = new ExtraStudent("DIMA");
             var groupName = new GroupName('M', 3, 2, 11);
             var mainGroup = new RegularGroup(groupName);
             _service.AddRegularGroup(mainGroup);
             mainGroup.AddStudent(student);
-            var ognpCourse = new OgnpCourse('A');
-            var groupName2 = new GroupName('A', 3, 2, 10);
+            var ognpCourse = new OgnpCourse(ExtraFaculty.FT);
+            var groupName2 = new GroupName('E', 3, 2, 10);
             var ognpGroup = new OgnpGroup(groupName2);
             ognpGroup.AddStudent(student);
-            var flow = new OgnpFlow('A');
+            var flow = new OgnpFlow(ExtraFaculty.FT);
             flow.AddOgnpGroup(ognpGroup);
             ognpCourse.AddFlow(flow);
             _service.AddOgnpCourse(ognpCourse);
             _service.RemoveRecordingFromCcourse(student, ognpCourse);
-            Assert.AreEqual(0, student.OgnpStatus() );
+            Assert.AreEqual(OgnpStatus.NotRecorded, student.OgnpStatus );
         }
         
     }

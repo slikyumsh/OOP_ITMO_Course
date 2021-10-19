@@ -7,14 +7,14 @@ namespace IsuExtra.Models
     public class Lesson
     {
         private readonly DateTime _end;
+        private readonly DateTime _start;
         private readonly string _name;
-        private DateTime _start;
-        private char _faculty;
+        private ExtraFaculty _faculty;
         private Cabinet _cabinet;
         private Professor _professor;
         private Guid _id;
 
-        public Lesson(DateTime start, char faculty, string name, Cabinet cabinet, Professor professor)
+        public Lesson(DateTime start, ExtraFaculty faculty, string name, Cabinet cabinet, Professor professor)
         {
             _start = start;
             _end = start.AddHours(1.5);
@@ -25,6 +25,8 @@ namespace IsuExtra.Models
             _id = Guid.NewGuid();
         }
 
+        public Guid Id => _id;
+        public ExtraFaculty Faculty => _faculty;
         public override bool Equals(object obj)
         {
             if (obj == null || !(obj is Lesson))
@@ -32,21 +34,13 @@ namespace IsuExtra.Models
                 return false;
             }
 
-            return _id == ((Lesson)obj).Id();
+            return _id == ((Lesson)obj).Id;
         }
 
         public override int GetHashCode()
         {
             return _name.GetHashCode();
         }
-
-        public DateTime Start() => _start;
-        public DateTime End() => _end;
-        public char Faculty() => _faculty;
-        public string Name() => _name;
-        public Guid Cabinet() => _cabinet.Id();
-        public Guid Professor() => _professor.Id();
-        public Guid Id() => _id;
 
         public bool IsIntersect(Lesson lesson)
         {

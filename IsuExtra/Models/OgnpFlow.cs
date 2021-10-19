@@ -7,26 +7,26 @@ namespace IsuExtra.Models
     public class OgnpFlow
     {
         private readonly List<OgnpGroup> _ognpGroups;
-        private char _faculty;
+        private ExtraFaculty _faculty;
         private Guid _id;
 
-        public OgnpFlow(char faculty)
+        public OgnpFlow(ExtraFaculty faculty)
         {
             _ognpGroups = new List<OgnpGroup>();
             _faculty = faculty;
             _id = Guid.NewGuid();
         }
 
-        public Guid Id() => _id;
-        public char Faculty() => _faculty;
-        public List<OgnpGroup> ListGroups() => _ognpGroups;
+        public Guid Id => _id;
+        public ExtraFaculty Faculty => _faculty;
+        public List<OgnpGroup> ListGroups => _ognpGroups;
 
         public void AddOgnpGroup(OgnpGroup ognpGroup)
         {
-            OgnpGroup desiredOgnpGroup = _ognpGroups.SingleOrDefault(desiredOgnpGroup => desiredOgnpGroup.Id() == ognpGroup.Id());
+            OgnpGroup desiredOgnpGroup = _ognpGroups.SingleOrDefault(desiredOgnpGroup => desiredOgnpGroup.Id == ognpGroup.Id);
             if (desiredOgnpGroup != null)
                 throw new ArgumentException("We already have this ognp flow");
-            if (_faculty != ognpGroup.Faculty())
+            if (_faculty != ognpGroup.Faculty)
                 throw new ArgumentException("Invalid faculty");
             _ognpGroups.Add(ognpGroup);
         }

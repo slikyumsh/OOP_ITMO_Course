@@ -23,10 +23,10 @@ namespace IsuExtra.Models.Models
 
         public void AddOgnpCourse(OgnpCourse course)
         {
-            OgnpCourse desiredCourse = _ognpCourses.SingleOrDefault(desiredCourse => desiredCourse.Id() == course.Id());
+            OgnpCourse desiredCourse = _ognpCourses.SingleOrDefault(desiredCourse => desiredCourse.Id == course.Id);
             if (desiredCourse != null)
                 throw new ArgumentException("We have already added this flow");
-            desiredCourse = _ognpCourses.SingleOrDefault(desiredCourse => desiredCourse.Faculty() == course.Faculty());
+            desiredCourse = _ognpCourses.SingleOrDefault(desiredCourse => desiredCourse.Faculty == course.Faculty);
             if (desiredCourse != null)
                 throw new ArgumentException("We have already added flow from this faculty");
             _ognpCourses.Add(course);
@@ -34,10 +34,10 @@ namespace IsuExtra.Models.Models
 
         public void AddRegularGroup(RegularGroup group)
         {
-            RegularGroup desiredGroup = _groups.SingleOrDefault(desiredGroup => desiredGroup.Id() == group.Id());
+            RegularGroup desiredGroup = _groups.SingleOrDefault(desiredGroup => desiredGroup.Id == group.Id);
             if (desiredGroup != null)
                 throw new ArgumentException("We have already added this group");
-            desiredGroup = _groups.SingleOrDefault(desiredGroup => desiredGroup.Faculty() == group.Faculty());
+            desiredGroup = _groups.SingleOrDefault(desiredGroup => desiredGroup.Faculty == group.Faculty);
             if (desiredGroup != null)
                 throw new ArgumentException("We have already added group from this faculty");
             _groups.Add(group);
@@ -45,20 +45,20 @@ namespace IsuExtra.Models.Models
 
         public List<OgnpFlow> GetCourseFlows(OgnpCourse course)
         {
-            return course.Flows();
+            return course.Flows;
         }
 
-        public List<OgnpStudent> GetListOfOgnpStudentsFromThisGroup(OgnpGroup group)
+        public List<ExtraStudent> GetListOfOgnpStudentsFromThisGroup(OgnpGroup group)
         {
-            return group.GetSudentList();
+            return group.GroupList;
         }
 
-        public List<OgnpStudent> GetListOfNotRecordedStudentsFromThisGroup(RegularGroup group)
+        public List<ExtraStudent> GetListOfNotRecordedStudentsFromThisGroup(RegularGroup group)
         {
-            List<OgnpStudent> result = new List<OgnpStudent>();
-            foreach (var ognpStudent in group.GetGroupList())
+            List<ExtraStudent> result = new List<ExtraStudent>();
+            foreach (var ognpStudent in group.GetGroupList)
             {
-                if (ognpStudent.OgnpStatus() == 0)
+                if (ognpStudent.OgnpStatus == 0)
                     result.Add(ognpStudent);
             }
 
@@ -67,25 +67,32 @@ namespace IsuExtra.Models.Models
             return result;
         }
 
-        public void EnrollStudentOnCourse(OgnpStudent ognpStudent, OgnpCourse ognpCourse)
+        public ExtraFaculty GetFaculty(ExtraStudent student)
         {
-            char faculty = '0';
+            ExtraFaculty faculty = ExtraFaculty.NoFaculty;
             foreach (var group in _groups)
             {
-                if (group.FindStudent(ognpStudent) != null)
+                if (group.FindStudent(student) != null)
                 {
-                    faculty = group.Faculty();
+                    faculty = group.Faculty;
                     break;
                 }
             }
 
-            if (faculty == '0')
+            return faculty;
+        }
+
+        public void EnrollStudentOnCourse(ExtraStudent ognpStudent, OgnpCourse ognpCourse)
+        {
+            ExtraFaculty faculty = GetFaculty(ognpStudent);
+
+            if (faculty == ExtraFaculty.NoFaculty)
                 throw new ArgumentException("Can't find out student regular groups faculty");
-            foreach (var flow in ognpCourse.Flows())
+            foreach (var flow in ognpCourse.Flows)
             {
-                foreach (var group in flow.ListGroups())
+                foreach (var group in flow.ListGroups)
                 {
-                    if (faculty != group.Faculty() && group.CanAddStudent(ognpStudent))
+                    if (faculty != group.Faculty && group.CanAddStudent(ognpStudent))
                     {
                         group.AddStudent(ognpStudent);
                         return;
@@ -94,11 +101,11 @@ namespace IsuExtra.Models.Models
             }
         }
 
-        public void RemoveRecordingFromCcourse(OgnpStudent ognpStudent, OgnpCourse ognpCourse)
+        public void RemoveRecordingFromCcourse(ExtraStudent ognpStudent, OgnpCourse ognpCourse)
         {
-            foreach (var flow in ognpCourse.Flows())
+            foreach (var flow in ognpCourse.Flows)
             {
-                foreach (var group in flow.ListGroups())
+                foreach (var group in flow.ListGroups)
                 {
                     if (group.CanRemoveStudent(ognpStudent))
                     {

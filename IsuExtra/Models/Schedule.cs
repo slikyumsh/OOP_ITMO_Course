@@ -6,42 +6,47 @@ namespace IsuExtra.Models
 {
     public class Schedule
     {
-        private List<Lesson>[] _schedule;
+        private Dictionary<DayOfWeek, List<Lesson>> _schedule;
 
         public Schedule()
         {
-            _schedule = new List<Lesson>[6];
+            _schedule = new Dictionary<DayOfWeek, List<Lesson>>();
+            _schedule[DayOfWeek.Sunday] = null;
+            _schedule[DayOfWeek.Monday] = null;
+            _schedule[DayOfWeek.Tuesday] = null;
+            _schedule[DayOfWeek.Wednesday] = null;
+            _schedule[DayOfWeek.Thursday] = null;
+            _schedule[DayOfWeek.Friday] = null;
+            _schedule[DayOfWeek.Saturday] = null;
         }
 
-        public List<Lesson>[] ListLessons() => _schedule;
+        public Dictionary<DayOfWeek, List<Lesson>> ListLessons => _schedule;
 
-        public void AddLesson(Lesson lesson, int day)
+        public void AddLesson(Lesson lesson, DayOfWeek day)
         {
-            if (day > 5 || day < 0)
-                throw new ArgumentException("Invalid Argument: Incorrect format of a day");
-            Lesson desiredLesson = _schedule[day].SingleOrDefault(desiredLesson => desiredLesson.Id() == lesson.Id());
+            if (day == DayOfWeek.Sunday)
+                throw new ArgumentException("Invalid Argument: We haven't any lessons at thi day");
+            Lesson desiredLesson = _schedule[day].SingleOrDefault(desiredLesson => desiredLesson.Id == lesson.Id);
             if (desiredLesson != null)
                 throw new ArgumentException("We can't add Lesson at this day: already have this lesson today");
             _schedule[day].Add(lesson);
         }
 
-        public List<Lesson> GetScheduleOfDay(int day)
+        public List<Lesson> GetScheduleOfDay(DayOfWeek day)
         {
-            if (day > 5 || day < 0)
-                throw new ArgumentException("Invalid Argument: Incorrect format of a day");
             return _schedule[day];
         }
 
         public bool IsIntersect(Schedule schedule)
         {
             if (_schedule == null && schedule == null)
-                return true;
-            for (int i = 0; i < 6; i++)
+                throw new ArgumentException("Invalid schedule");
+            foreach (DayOfWeek day in DayOfWeek.GetValues(typeof(DayOfWeek)))
             {
-                if (_schedule[i] == null && schedule.GetScheduleOfDay(i) == null) continue;
-                foreach (Lesson lesson1 in _schedule[i])
+                if (_schedule[day] == null && schedule.GetScheduleOfDay(day) == null) continue;
+                foreach (Lesson lesson1 in _schedule[day])
                 {
-                    foreach (Lesson lesson2 in schedule.GetScheduleOfDay(i))
+                    foreach (Lesson lesson2 in schedule.GetScheduleOfDay(day))
                     {
                         if (lesson1.IsIntersect(lesson2)) return true;
                     }
@@ -55,27 +60,28 @@ namespace IsuExtra.Models
         {
             if (IsIntersect(schedule))
                 throw new ArgumentException("Schedules are intersected");
-            for (int i = 0; i < 6; i++)
+            if (_schedule == null && schedule == null)
+                throw new ArgumentException("Invalid schedule");
+            foreach (DayOfWeek day in DayOfWeek.GetValues(typeof(DayOfWeek)))
             {
-                List<Lesson> todaySchedule = GetScheduleOfDay(i);
-                if (todaySchedule == null) continue;
-                foreach (Lesson lesson2 in todaySchedule)
-                {
-                    _schedule[i].Add(lesson2);
-                }
+                if (_schedule[day] == null && schedule.GetScheduleOfDay(day) == null) continue;
+                _schedule[day].AddRange(schedule.GetScheduleOfDay(day));
             }
         }
 
         public void DeleteSchedules(Schedule schedule)
         {
-            for (int i = 0; i < 6; i++)
+            if (IsIntersect(schedule))
+                throw new ArgumentException("Schedules are intersected");
+            if (_schedule == null && schedule == null)
+                throw new ArgumentException("Invalid schedule");
+            foreach (DayOfWeek day in DayOfWeek.GetValues(typeof(DayOfWeek)))
             {
-                List<Lesson> todaySchedule = schedule.GetScheduleOfDay(i);
-                if (todaySchedule == null) continue;
-                foreach (Lesson lesson2 in todaySchedule)
-                {
-                    _schedule[i].Remove(lesson2);
-                }
+                if (_schedule[day] == null && schedule.GetScheduleOfDay(day) == null) continue;
+                foreach (Lesson lesson2 in schedule.GetScheduleOfDay(day))
+                    {
+                        _schedule[day].Remove(lesson2);
+                    }
             }
         }
     }

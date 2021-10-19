@@ -16,10 +16,7 @@ namespace IsuExtra.Models
         public Professor(string name)
         {
             _name = name;
-            _id = default(Guid);
+            _id = Guid.NewGuid();
         }
-
-        public string Name() => _name;
-        public Guid Id() => _id;
     }
 }

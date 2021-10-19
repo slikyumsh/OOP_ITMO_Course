@@ -8,34 +8,41 @@ namespace IsuExtra.Models
     public class RegularGroup : Group
     {
         private readonly int maxNumberOfStudents = 25;
-        private readonly List<OgnpStudent> _groupList;
+        private readonly List<ExtraStudent> _groupList;
         private Schedule _schedule;
         private Guid _id;
-        private char _faculty;
+        private ExtraFaculty _faculty;
 
         public RegularGroup(GroupName groupName)
             : base(groupName)
         {
             _schedule = new Schedule();
-            _groupList = new List<OgnpStudent>();
+            _groupList = new List<ExtraStudent>();
             _id = Guid.NewGuid();
-            _faculty = groupName.Letter;
+            _faculty = CharToExtraFacultyEnum(groupName.Letter);
         }
 
-        public List<OgnpStudent> GetGroupList() => _groupList;
-        public Guid Id() => _id;
-        public char Faculty() => _faculty;
+        public Guid Id => _id;
+        public ExtraFaculty Faculty => _faculty;
 
-        public OgnpStudent FindStudent(OgnpStudent ognpStudent)
+        public List<ExtraStudent> GetGroupList => _groupList;
+        public ExtraFaculty CharToExtraFacultyEnum(char input)
         {
-            OgnpStudent desiredStudent =
+            if ((input < 'A' && input != '0') || (input > 'E' && input != 'M'))
+                throw new ArgumentException("Invalid char value");
+            return (ExtraFaculty)Enum.ToObject(typeof(ExtraFaculty), input);
+        }
+
+        public ExtraStudent FindStudent(ExtraStudent ognpStudent)
+        {
+            ExtraStudent desiredStudent =
                 _groupList.SingleOrDefault(desiredStudent => desiredStudent.Id == ognpStudent.Id);
             if (desiredStudent == null)
                 throw new ArgumentException("We can't find this student");
             return desiredStudent;
         }
 
-        public OgnpStudent AddStudent(OgnpStudent ognpStudent)
+        public ExtraStudent AddStudent(ExtraStudent ognpStudent)
         {
             if (_groupList.Count == maxNumberOfStudents)
                 throw new ArgumentException("A lot of students at one group");
