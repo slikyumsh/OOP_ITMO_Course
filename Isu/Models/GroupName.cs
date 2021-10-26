@@ -11,7 +11,7 @@ namespace Isu.Models
         private GroupNumber _groupNumber;
         public GroupName(char letter, int studyingType, int courseNumber, int groupNumber)
         {
-            if (letter != 'M' || studyingType != 3)
+            if (studyingType != 3 || letter > 'Z' || letter < 'A')
                 throw new IsuException("Invalid GroupName");
             _courseNumber = new CourseNumber(courseNumber);
             _groupNumber = new GroupNumber(groupNumber);
