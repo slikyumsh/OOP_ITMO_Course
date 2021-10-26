@@ -46,9 +46,13 @@ namespace IsuExtra.Models
         {
             if (lesson == null)
                 throw new ArgumentException("Null-Lesson");
+            if (this == null)
+                throw new ArgumentException("Null-Lesson");
             if (_start < lesson._start && _end > lesson._start)
                 return true;
             if (_start > lesson._start && _start < lesson._end)
+                return true;
+            if (_start == lesson._start && _end == lesson._end)
                 return true;
             return false;
         }

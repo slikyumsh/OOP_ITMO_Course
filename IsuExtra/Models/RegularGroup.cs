@@ -22,6 +22,15 @@ namespace IsuExtra.Models
             _faculty = CharToExtraFacultyEnum(groupName.Letter);
         }
 
+        public RegularGroup(GroupName groupName, Schedule schedule)
+            : base(groupName)
+        {
+            _schedule = schedule;
+            _groupList = new List<ExtraStudent>();
+            _id = Guid.NewGuid();
+            _faculty = CharToExtraFacultyEnum(groupName.Letter);
+        }
+
         public Guid Id => _id;
         public ExtraFaculty Faculty => _faculty;
 

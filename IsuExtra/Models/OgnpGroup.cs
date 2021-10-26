@@ -22,6 +22,15 @@ namespace IsuExtra.Models
             _groupList = new List<ExtraStudent>();
         }
 
+        public OgnpGroup(GroupName groupName, Schedule schedule)
+            : base(groupName)
+        {
+            _faculty = CharToExtraFacultyEnum(groupName.Letter);
+            _schedule = schedule;
+            _id = Guid.NewGuid();
+            _groupList = new List<ExtraStudent>();
+        }
+
         public Guid Id => _id;
         public ExtraFaculty Faculty => _faculty;
 
@@ -46,7 +55,7 @@ namespace IsuExtra.Models
             if (_groupList.Count == maxNumberOfStudents)
                 throw new ArgumentException("A lot of students at one group");
             if (_schedule.IsIntersect(ognpStudent.PersonalSchedule))
-                throw new Exception("Can't add student to this OGNP");
+                throw new Exception("Can't add student to this OGNP: schedules are intersected");
             _groupList.Add(ognpStudent);
             ognpStudent.PersonalSchedule.ConcatSchedules(_schedule);
             ognpStudent.IncrementOgnpStatus();

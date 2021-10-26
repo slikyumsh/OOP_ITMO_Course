@@ -11,13 +11,13 @@ namespace IsuExtra.Models
         public Schedule()
         {
             _schedule = new Dictionary<DayOfWeek, List<Lesson>>();
-            _schedule[DayOfWeek.Sunday] = null;
-            _schedule[DayOfWeek.Monday] = null;
-            _schedule[DayOfWeek.Tuesday] = null;
-            _schedule[DayOfWeek.Wednesday] = null;
-            _schedule[DayOfWeek.Thursday] = null;
-            _schedule[DayOfWeek.Friday] = null;
-            _schedule[DayOfWeek.Saturday] = null;
+            _schedule[DayOfWeek.Sunday] = new List<Lesson>();
+            _schedule[DayOfWeek.Monday] = new List<Lesson>();
+            _schedule[DayOfWeek.Tuesday] = new List<Lesson>();
+            _schedule[DayOfWeek.Wednesday] = new List<Lesson>();
+            _schedule[DayOfWeek.Thursday] = new List<Lesson>();
+            _schedule[DayOfWeek.Friday] = new List<Lesson>();
+            _schedule[DayOfWeek.Saturday] = new List<Lesson>();
         }
 
         public Dictionary<DayOfWeek, List<Lesson>> ListLessons => _schedule;
@@ -32,6 +32,18 @@ namespace IsuExtra.Models
             _schedule[day].Add(lesson);
         }
 
+        public bool CheckEmptySchedule()
+        {
+            int count = 0;
+            foreach (DayOfWeek day in DayOfWeek.GetValues(typeof(DayOfWeek)))
+            {
+                count += _schedule[day].Count;
+            }
+
+            if (count == 0) return true;
+            return false;
+        }
+
         public List<Lesson> GetScheduleOfDay(DayOfWeek day)
         {
             return _schedule[day];
@@ -39,12 +51,14 @@ namespace IsuExtra.Models
 
         public bool IsIntersect(Schedule schedule)
         {
-            if (_schedule == null && schedule == null)
+            if (_schedule == null)
+                throw new ArgumentException("Invalid schedule");
+            if (schedule == null)
                 throw new ArgumentException("Invalid schedule");
             foreach (DayOfWeek day in DayOfWeek.GetValues(typeof(DayOfWeek)))
             {
-                if (_schedule[day] == null && schedule.GetScheduleOfDay(day) == null) continue;
-                foreach (Lesson lesson1 in _schedule[day])
+                if (_schedule[day].Count == 0 && schedule.GetScheduleOfDay(day).Count == 0) continue;
+                foreach (Lesson lesson1 in GetScheduleOfDay(day))
                 {
                     foreach (Lesson lesson2 in schedule.GetScheduleOfDay(day))
                     {

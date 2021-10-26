@@ -15,7 +15,7 @@ namespace IsuExtra.Tests
         {
             _service = new OgnpService();
         }
-        
+
         [Test]
         public void AddOgnp()
         {
@@ -23,7 +23,7 @@ namespace IsuExtra.Tests
             _service.AddOgnpCourse(ognpCourse);
             Assert.AreEqual(1,_service.NumberOfCourses() );
         }
-        
+
         [Test]
         public void CheckLessonsIntrsection()
         {
@@ -42,7 +42,7 @@ namespace IsuExtra.Tests
             var mainGroup = new RegularGroup(groupName);
             _service.AddRegularGroup(mainGroup);
             mainGroup.AddStudent(student);
-            
+
             var ognpCourse = new OgnpCourse(ExtraFaculty.FTMI);
             var groupName2 = new GroupName('C', 3, 2, 10);
             var ognpGroup = new OgnpGroup(groupName2);
@@ -53,7 +53,7 @@ namespace IsuExtra.Tests
             _service.EnrollStudentOnCourse(student, ognpCourse);
             Assert.AreEqual(OgnpStatus.OneOgnp, student.OgnpStatus );
         }
-        
+
         [Test]
         public void FailEnrollStudentToThisOgnp()
         {
@@ -69,10 +69,16 @@ namespace IsuExtra.Tests
             flow.AddOgnpGroup(ognpGroup);
             ognpCourse.AddFlow(flow);
             _service.AddOgnpCourse(ognpCourse);
-            _service.EnrollStudentOnCourse(student, ognpCourse);
-            Assert.AreEqual(OgnpStatus.NotRecorded, student.OgnpStatus );
+            try
+            {
+                _service.EnrollStudentOnCourse(student, ognpCourse);
+            }
+            catch (ArgumentException e)
+            {
+                Assert.AreEqual(OgnpStatus.NotRecorded, student.OgnpStatus );
+            }
         }
-        
+
         [Test]
         public void GetFlowsByCourse()
         {
@@ -89,7 +95,7 @@ namespace IsuExtra.Tests
             List<OgnpFlow> result = ognpCourse.Flows;
             Assert.AreEqual(4, result.Count);
         }
-        
+
         [Test]
         public void GetStudentsListFromThisOgnpFroup()
         {
@@ -109,7 +115,7 @@ namespace IsuExtra.Tests
             }
             Assert.AreEqual("DIMASashaMisha", answer);
         }
-        
+
         [Test]
         public void GetStudentsListWithoutOgnpFroup()
         {
@@ -138,7 +144,7 @@ namespace IsuExtra.Tests
             }
             Assert.AreEqual("SashaMisha", answer);
         }
-        
+
         [Test]
         public void RemoveEntryForOgnpforStudent()
         {
@@ -158,6 +164,6 @@ namespace IsuExtra.Tests
             _service.RemoveRecordingFromCcourse(student, ognpCourse);
             Assert.AreEqual(OgnpStatus.NotRecorded, student.OgnpStatus );
         }
-        
+
     }
-}
+} 

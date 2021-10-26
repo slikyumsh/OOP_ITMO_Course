@@ -69,17 +69,10 @@ namespace IsuExtra.Models.Models
 
         public ExtraFaculty GetFaculty(ExtraStudent student)
         {
-            ExtraFaculty faculty = ExtraFaculty.NoFaculty;
-            foreach (var group in _groups)
-            {
-                if (group.FindStudent(student) != null)
-                {
-                    faculty = group.Faculty;
-                    break;
-                }
-            }
-
-            return faculty;
+            RegularGroup desiredGroup = _groups.FirstOrDefault(desiredGroup => desiredGroup.FindStudent(student) == student);
+            if (desiredGroup == null)
+                throw new ArgumentException("Invalid argument: there is no any regular group that contained this student");
+            return desiredGroup.Faculty;
         }
 
         public void EnrollStudentOnCourse(ExtraStudent ognpStudent, OgnpCourse ognpCourse)
@@ -88,34 +81,35 @@ namespace IsuExtra.Models.Models
 
             if (faculty == ExtraFaculty.NoFaculty)
                 throw new ArgumentException("Can't find out student regular groups faculty");
-            foreach (var flow in ognpCourse.Flows)
-            {
-                foreach (var group in flow.ListGroups)
-                {
-                    if (faculty != group.Faculty && group.CanAddStudent(ognpStudent))
-                    {
-                        group.AddStudent(ognpStudent);
-                        return;
-                    }
-                }
-            }
+            if (ognpCourse == null)
+                throw new ArgumentException("There is no any ognp with this name");
+            if (ognpStudent == null)
+                throw new ArgumentException("There is no such student");
+            List<OgnpGroup> selectedGroups = ognpCourse.Flows.SelectMany(flow => @flow.ListGroups).ToList();
+            if (!selectedGroups.Any())
+                throw new ArgumentException("This ognp course hasn't any groups");
+
+            OgnpGroup desiredGroup =
+                selectedGroups.Find(x => x.CanAddStudent(ognpStudent) && x.Faculty != faculty);
+            if (desiredGroup == null)
+                throw new ArgumentException("This student can't go to one of the groups from this ognp");
+            desiredGroup.AddStudent(ognpStudent);
         }
 
         public void RemoveRecordingFromCcourse(ExtraStudent ognpStudent, OgnpCourse ognpCourse)
         {
-            foreach (var flow in ognpCourse.Flows)
-            {
-                foreach (var group in flow.ListGroups)
-                {
-                    if (group.CanRemoveStudent(ognpStudent))
-                    {
-                        group.RemoveStudent(ognpStudent);
-                        return;
-                    }
-                }
-            }
-
-            throw new Exception("Can't enroll student on this course");
+            if (ognpCourse == null)
+                throw new ArgumentException("There is no any ognp with this name");
+            if (ognpStudent == null)
+                throw new ArgumentException("There is no such student");
+            List<OgnpGroup> selectedGroups = ognpCourse.Flows.SelectMany(flow => @flow.ListGroups).ToList();
+            if (!selectedGroups.Any())
+                throw new ArgumentException("This ognp course hasn't any groups");
+            OgnpGroup desiredGroup =
+                selectedGroups.FirstOrDefault(desiredGroup => desiredGroup.CanRemoveStudent(ognpStudent));
+            if (desiredGroup == null)
+                throw new ArgumentException("This student doesn't go to one of the groups from this ognp");
+            desiredGroup.RemoveStudent(ognpStudent);
         }
     }
 }
