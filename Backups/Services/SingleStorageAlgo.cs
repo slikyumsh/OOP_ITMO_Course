@@ -11,8 +11,8 @@ namespace Backups
         {
             if (list.Count == 0)
                 throw new ArgumentException("List is empty");
-            string zipFile = "C:\\Users\\dellx\\Desktop\\BackupWorkFiles\\ZipFile";
-            RestorePoint restorePoint = new RestorePoint("C:\\Users\\dellx\\Desktop\\BackupWorkFiles");
+            string zipFile = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles\\ZipFile";
+            RestorePoint restorePoint = new RestorePoint(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles");
             using (var archive = ZipFile.Open(zipFile, ZipArchiveMode.Create))
             {
                 foreach (var file in list)
@@ -20,7 +20,7 @@ namespace Backups
                     archive.CreateEntryFromFile(file.Path, Path.GetFileName(file.Path));
                 }
 
-                restorePoint.AddFile(zipFile);
+                restorePoint.AddFile(new FileInfo(zipFile));
             }
 
             return restorePoint;

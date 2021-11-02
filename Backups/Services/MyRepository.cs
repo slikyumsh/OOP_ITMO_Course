@@ -26,7 +26,7 @@ namespace Backups
 
             foreach (var file in restorePoint.Jobs)
             {
-                File.Move(file, _path + "\\RestorePoint" + Convert.ToString(_numberOfRestorePoints) + "\\" + Convert.ToString(counterFiles) + ".txt");
+                File.Move(Convert.ToString(file), _path + "\\RestorePoint" + Convert.ToString(_numberOfRestorePoints) + "\\" + Convert.ToString(counterFiles) + ".txt");
                 counterFiles++;
             }
 

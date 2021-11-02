@@ -8,23 +8,21 @@ namespace Backups
     public class RestorePoint
     {
         private string _name;
-        private List<string> _files;
+        private List<FileInfo> _files;
 
         public RestorePoint(string name)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentException("Empty string");
             _name = name;
-            _files = new List<string>();
+            _files = new List<FileInfo>();
         }
 
-        public List<string> Jobs => _files;
+        public List<FileInfo> Jobs => _files;
 
-        public void AddFile(string file)
+        public void AddFile(FileInfo file)
         {
-            if (string.IsNullOrEmpty(file))
-                throw new ArgumentException("Empty string");
-            string desiredString = _files.SingleOrDefault(desiredString => desiredString == file);
+            FileInfo desiredString = _files.SingleOrDefault(desiredString => desiredString == file);
             if (desiredString != null)
                 throw new ArgumentException("We have already added this file");
             _files.Add(file);

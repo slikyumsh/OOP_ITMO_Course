@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using NUnit.Framework;
 
 namespace Backups.Tests
@@ -6,64 +7,85 @@ namespace Backups.Tests
     public class BackupTests
     {
         [Test]
-        [Ignore("Fails because GIT FS" )]
-        public void TestFromTask1()
+        public void TestFromTusk1()
         {
-            BackupService a = new BackupService(new SplitStoragesAlgo(), new MyRepository(@"C:\\Users\\dellx\\Desktop\\BackupWorkFiles\\"));
+            Directory.CreateDirectory(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\WorkFiles\\");
+            FileStream fileStream1 = File.Create(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\WorkFiles\\1.txt");
+            FileStream fileStream2 = File.Create(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\WorkFiles\\2.txt");
+            FileStream fileStream3 = File.Create(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\WorkFiles\\3.txt");
+            fileStream1.Close();
+            fileStream2.Close();
+            fileStream3.Close();
+            Directory.CreateDirectory(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\BackupWorkFiles\\");
+            BackupService a = new BackupService(new SplitStoragesAlgo(), new MyRepository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles\\"));
+            JobObject x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\WorkFiles\\1.txt");
+            JobObject y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\WorkFiles\\2.txt");
+            JobObject z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\WorkFiles\\3.txt");
 
-            JobObject x = new JobObject(@"C:\\Users\\dellx\\Desktop\\WorkFiles\\1.txt");
-            JobObject y = new JobObject(@"C:\\Users\\dellx\\Desktop\\WorkFiles\\2.txt");
-            JobObject z = new JobObject(@"C:\\Users\\dellx\\Desktop\\WorkFiles\\3.txt");
             a.AddJobObject(x);
             a.AddJobObject(y);
             a.MakePoint();
             a.DeleteJobObject(y);
             a.MakePoint();
-            string[] AllFiles = Directory.GetFiles("C:\\Users\\dellx\\Desktop\\BackupWorkFiles","*",SearchOption.AllDirectories);
-            Assert.AreEqual(3, AllFiles.Length);
-            string[] AllDirectories = Directory.GetDirectories("C:\\Users\\dellx\\Desktop\\BackupWorkFiles");
-            Assert.AreEqual(2, AllDirectories.Length);
-            DirectoryInfo folder = new DirectoryInfo(@"C:\\Users\\dellx\\Desktop\\BackupWorkFiles");
-
-            foreach (FileInfo file in folder.GetFiles())
-            {
-                file.Delete(); 
-            }
-
-            foreach (DirectoryInfo dir in folder.GetDirectories())
-            {
-                dir.Delete(true); 
-            }
+            string[] allFiles = Directory.GetFiles(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles", "*", SearchOption.AllDirectories);
+            Assert.AreEqual(3, allFiles.Length);
+            
+            string[] allDirectories = Directory.GetDirectories(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles", "*", SearchOption.AllDirectories);
+            Assert.AreEqual(2, allDirectories.Length);
+            
+            Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\WorkFiles\\", true);
+            Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles\\", true);
         }
         
         [Test]
-        [Ignore("Fails because GIT FS" )]
-        public void TestFromTask2()
+        public void TestFromTusk2()
         {
-            BackupService a = new BackupService(new SingleStorageAlgo(), new MyRepository(@"C:\\Users\\dellx\\Desktop\\BackupWorkFiles\\"));
+            Directory.CreateDirectory(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\WorkFiles\\");
+            FileStream fileStream1 = File.Create(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\WorkFiles\\1.txt");
+            FileStream fileStream2 = File.Create(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\WorkFiles\\2.txt");
+            FileStream fileStream3 = File.Create(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\WorkFiles\\3.txt");
+            fileStream1.Close();
+            fileStream2.Close();
+            fileStream3.Close();
+            Directory.CreateDirectory(
+                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "\\Backups\\BackupWorkFiles\\");
+            BackupService a = new BackupService(new SingleStorageAlgo(), new MyRepository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles\\"));
+            JobObject x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\WorkFiles\\1.txt");
+            JobObject y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\WorkFiles\\2.txt");
+            JobObject z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\WorkFiles\\3.txt");
 
-            JobObject x = new JobObject(@"C:\\Users\\dellx\\Desktop\\WorkFiles\\1.txt");
-            JobObject y = new JobObject(@"C:\\Users\\dellx\\Desktop\\WorkFiles\\2.txt");
-            JobObject z = new JobObject(@"C:\\Users\\dellx\\Desktop\\WorkFiles\\3.txt");
             a.AddJobObject(x);
             a.AddJobObject(y);
             a.MakePoint();
             
-            string[] AllFiles = Directory.GetFiles("C:\\Users\\dellx\\Desktop\\BackupWorkFiles","*",SearchOption.AllDirectories);
-            Assert.AreEqual(1, AllFiles.Length);
-            string[] AllDirectories = Directory.GetDirectories("C:\\Users\\dellx\\Desktop\\BackupWorkFiles");
-            Assert.AreEqual(1, AllDirectories.Length);
-            DirectoryInfo folder = new DirectoryInfo(@"C:\\Users\\dellx\\Desktop\\BackupWorkFiles");
-
-            foreach (FileInfo file in folder.GetFiles())
-            {
-                file.Delete(); 
-            }
-
-            foreach (DirectoryInfo dir in folder.GetDirectories())
-            {
-                dir.Delete(true); 
-            }
+            string[] allFiles = Directory.GetFiles(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles", "*", SearchOption.AllDirectories);
+            Assert.AreEqual(1, allFiles.Length);
+            
+            string[] allDirectories = Directory.GetDirectories(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles", "*", SearchOption.AllDirectories);
+            Assert.AreEqual(1, allDirectories.Length);
+            
+            Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\WorkFiles\\", true);
+            Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles\\", true);
         }
+        
     }
 }

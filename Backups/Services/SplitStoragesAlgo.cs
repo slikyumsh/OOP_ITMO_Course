@@ -2,28 +2,29 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 
 namespace Backups
 {
     public class SplitStoragesAlgo : IAlgorithm
     {
+        private static int _counterDirectories = 1;
         public RestorePoint MakePoint(List<JobObject> list)
         {
-            if (list.Count == 0)
+            if (!list.Any())
                 throw new ArgumentException("List is empty");
-            int counterDirectories = 1;
-            RestorePoint restorePoint = new RestorePoint("C:\\Users\\dellx\\Desktop\\BackupWorkFiles");
+            RestorePoint restorePoint = new RestorePoint(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles");
             foreach (var file in list)
             {
-                string zipFile = "C:\\Users\\dellx\\Desktop\\BackupWorkFiles\\ZipFile" + Convert.ToString(counterDirectories);
-                JobObject job = new JobObject(zipFile);
-                counterDirectories++;
+                string zipFile = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\Backups\\BackupWorkFiles\\ZipFile" + Convert.ToString(_counterDirectories);
+                JobObject jobObject = new JobObject(zipFile);
+                _counterDirectories++;
                 using (var archive = ZipFile.Open(zipFile, ZipArchiveMode.Create))
                 {
                     archive.CreateEntryFromFile(file.Path, Path.GetFileName(file.Path));
                 }
 
-                restorePoint.AddFile(job.Path);
+                restorePoint.AddFile(new FileInfo(zipFile));
             }
 
             return restorePoint;
