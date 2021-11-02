@@ -4,6 +4,6 @@ namespace Backups
 {
     public interface IAlgorithm
     {
-        public RestorePoint MakePoint(List<JobObject> list);
+        public RestorePoint MakePoint(List<JobObject> listJobObjects);
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.VisualBasic.FileIO;
 
 namespace Backups
 {
@@ -21,7 +20,7 @@ namespace Backups
         {
             if (string.IsNullOrEmpty(_path))
                 throw new ArgumentException("Empty String");
-            int counterFiles = 1;
+            int counterFiles = 1; // A counter for counting files, as well as for their correct naming
             Directory.CreateDirectory(_path + "/RestorePoint" + Convert.ToString(_numberOfRestorePoints));
 
             foreach (var file in restorePoint.Jobs)

@@ -29,14 +29,14 @@ namespace Backups
             _jobObjects.Add(job);
         }
 
-        public void DeleteJobObject(JobObject job)
+        public void DeleteJobObject(JobObject jobObject)
         {
-            if (string.IsNullOrEmpty(job.Path))
+            if (string.IsNullOrEmpty(jobObject.Path))
                 throw new ArgumentException("Empty Job");
-            JobObject desiredJobObject = _jobObjects.SingleOrDefault(desiredJobObject => desiredJobObject.Path == job.Path);
+            JobObject desiredJobObject = _jobObjects.SingleOrDefault(desiredJobObject => desiredJobObject.Path == jobObject.Path);
             if (desiredJobObject == null)
                 throw new ArgumentException("We haven't this job at this Point");
-            _jobObjects.Remove(job);
+            _jobObjects.Remove(jobObject);
         }
     }
 }
