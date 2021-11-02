@@ -22,11 +22,11 @@ namespace Backups
             if (string.IsNullOrEmpty(_path))
                 throw new ArgumentException("Empty String");
             int counterFiles = 1;
-            Directory.CreateDirectory(_path + "\\RestorePoint" + Convert.ToString(_numberOfRestorePoints));
+            Directory.CreateDirectory(_path + "/RestorePoint" + Convert.ToString(_numberOfRestorePoints));
 
             foreach (var file in restorePoint.Jobs)
             {
-                File.Move(Convert.ToString(file), _path + "\\RestorePoint" + Convert.ToString(_numberOfRestorePoints) + "\\" + Convert.ToString(counterFiles) + ".txt");
+                File.Move(Convert.ToString(file), _path + "/RestorePoint" + Convert.ToString(_numberOfRestorePoints) + "/" + Convert.ToString(counterFiles) + ".txt");
                 counterFiles++;
             }
 
