@@ -7,12 +7,20 @@ namespace Backups
 {
     public class SingleStorageAlgo : IAlgorithm
     {
+        private readonly string _rootPath;
+
+        public SingleStorageAlgo()
+        {
+            _rootPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                    "/Backups/BackupWorkFiles";
+        }
+
         public RestorePoint MakePoint(List<JobObject> list)
         {
             if (list.Count == 0)
                 throw new ArgumentException("List is empty");
-            string zipFile = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/BackupWorkFiles/ZipFile";
-            RestorePoint restorePoint = new RestorePoint(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/BackupWorkFiles");
+            string zipFile = _rootPath + "/ZipFile";
+            RestorePoint restorePoint = new RestorePoint(_rootPath);
             using (var archive = ZipFile.Open(zipFile, ZipArchiveMode.Create))
             {
                 foreach (var file in list)

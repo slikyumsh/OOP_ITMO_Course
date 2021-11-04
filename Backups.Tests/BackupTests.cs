@@ -27,7 +27,7 @@ namespace Backups.Tests
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/Backups/BackupWorkFiles/");
-            BackupService a = new BackupService(new SplitStoragesAlgo(), new MyRepository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/BackupWorkFiles/"));
+            BackupService a = new BackupService(new SplitStoragesAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/BackupWorkFiles/"));
             JobObject x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/WorkFiles/1.txt");
             JobObject y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/WorkFiles/2.txt");
             JobObject z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/WorkFiles/3.txt");
@@ -69,7 +69,7 @@ namespace Backups.Tests
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/Backups/BackupWorkFiles/");
-            BackupService a = new BackupService(new SingleStorageAlgo(), new MyRepository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/BackupWorkFiles/"));
+            BackupService a = new BackupService(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/BackupWorkFiles/"));
             JobObject x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/WorkFiles/1.txt");
             JobObject y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/WorkFiles/2.txt");
             JobObject z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/WorkFiles/3.txt");

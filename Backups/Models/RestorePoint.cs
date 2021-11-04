@@ -18,7 +18,7 @@ namespace Backups
             _files = new List<FileInfo>();
         }
 
-        public List<FileInfo> Jobs => _files;
+        public List<FileInfo> Files => _files;
 
         public void AddFile(FileInfo file)
         {

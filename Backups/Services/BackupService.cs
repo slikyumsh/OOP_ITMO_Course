@@ -22,11 +22,11 @@ namespace Backups
             _repository.SavePoint(_algorithm.MakePoint(_jobObjects));
         }
 
-        public void AddJobObject(JobObject job)
+        public void AddJobObject(JobObject jobObject)
         {
-            if (string.IsNullOrEmpty(job.Path))
+            if (string.IsNullOrEmpty(jobObject.Path))
                 throw new ArgumentException("Empty Job");
-            _jobObjects.Add(job);
+            _jobObjects.Add(jobObject);
         }
 
         public void DeleteJobObject(JobObject jobObject)

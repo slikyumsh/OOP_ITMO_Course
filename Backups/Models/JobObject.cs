@@ -4,7 +4,7 @@ namespace Backups
 {
     public class JobObject
     {
-        private string _filePath;
+        private readonly string _filePath;
 
         public JobObject(string path)
         {

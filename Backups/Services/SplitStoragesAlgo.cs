@@ -9,14 +9,22 @@ namespace Backups
     public class SplitStoragesAlgo : IAlgorithm
     {
         private static int _counterDirectories = 1;
+        private readonly string _rootPath;
+
+        public SplitStoragesAlgo()
+        {
+            _rootPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                        "/Backups/BackupWorkFiles";
+        }
+
         public RestorePoint MakePoint(List<JobObject> list)
         {
             if (!list.Any())
                 throw new ArgumentException("List is empty");
-            RestorePoint restorePoint = new RestorePoint(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/BackupWorkFiles");
+            RestorePoint restorePoint = new RestorePoint(_rootPath);
             foreach (var file in list)
             {
-                string zipFile = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/Backups/BackupWorkFiles/ZipFile" + Convert.ToString(_counterDirectories);
+                string zipFile = _rootPath + "/ZipFile" + Convert.ToString(_counterDirectories);
                 JobObject jobObject = new JobObject(zipFile);
                 _counterDirectories++;
                 using (var archive = ZipFile.Open(zipFile, ZipArchiveMode.Create))
