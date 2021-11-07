@@ -1,4 +1,6 @@
-﻿namespace Backups
+﻿using System;
+
+namespace Backups
 {
     internal class Program
     {
