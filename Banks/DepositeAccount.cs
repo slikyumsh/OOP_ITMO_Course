@@ -15,7 +15,9 @@ namespace Banks
             _id = id;
         }
 
-        public void PutMoneyIntoAccount(int money)
+        public Guid Id => _id;
+
+        public void PutMoneyIntoAccount(double money)
         {
             if (money <= 0)
                 throw new ArgumentException("Invalid number of money");
@@ -29,13 +31,16 @@ namespace Banks
             _procent = newProcent;
         }
 
-        public void WithdrawMoneyFromAccount(int money, int time)
+        public void CanWithdrawMoneyFromAccount(double money)
         {
-            if (time <= 0 || time > _months)
-                throw new ArgumentException("Invalid time");
-            if (time < _months)
-                throw new ArgumentException("We can't give you your money: deposit term is not expiring");
-            _money = 0;
+            if (money > _money)
+                throw new ArgumentException("Not enough money");
+        }
+
+        public void WithdrawMoneyFromAccount(double money)
+        {
+            CanWithdrawMoneyFromAccount(money);
+            _money -= money;
         }
     }
 }

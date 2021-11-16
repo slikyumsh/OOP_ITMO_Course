@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Banks
 {
@@ -25,5 +26,32 @@ namespace Banks
         }
 
         public int Id => _id;
+        public string Adress => _address;
+        public string Passport => _passport;
+        public List<IAccount> Accounts => _accounts;
+
+        public void OpenNewAccount(Bank bank, IAccount account)
+        {
+            if (account == null)
+                throw new ArgumentException("Null bank account");
+            if (bank == null)
+                throw new ArgumentException("Null bank");
+            IAccount desiredAccount = _accounts.SingleOrDefault(desiredAccount => desiredAccount.Id == account.Id);
+            if (desiredAccount != null)
+                throw new ArgumentException("This client already has this account");
+            IAccount desiredInBankAccount = bank.Accounts.SingleOrDefault(desiredInBankAccount => desiredInBankAccount.Id == account.Id);
+            if (desiredInBankAccount != null)
+                throw new ArgumentException("This bank already has this account");
+            _accounts.Add(account);
+            bank.AddClient(this, account);
+        }
+
+        public bool DoesThisAccountBelongToThisClient(IAccount account)
+        {
+            if (account == null)
+                throw new ArgumentException("Null bank account");
+            IAccount desiredAccount = _accounts.SingleOrDefault(desiredAccount => desiredAccount.Id == account.Id);
+            return !(desiredAccount is null);
+        }
     }
 }

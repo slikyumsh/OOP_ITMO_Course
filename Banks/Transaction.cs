@@ -15,6 +15,8 @@ namespace Banks
                 throw new ArgumentException("Account is null");
             if (recipient == null)
                 throw new ArgumentException("Account is null");
+            if (recipient.Id == sender.Id)
+                throw new ArgumentException("The same account");
             if (money <= 0)
                 throw new ArgumentException("Invalid number of money");
             _sender = sender;
@@ -26,6 +28,19 @@ namespace Banks
         public Transaction ReverseTransaction()
         {
             return new Transaction(_recipient, _sender, _money);
+        }
+
+        public void TransferMoney()
+        {
+            _sender.WithdrawMoneyFromAccount(_money);
+            _recipient.PutMoneyIntoAccount(_money);
+        }
+
+        public void СancellationTransferMoney()
+        {
+            ReverseTransaction();
+            _recipient.WithdrawMoneyFromAccount(_money);
+            _sender.PutMoneyIntoAccount(_money);
         }
     }
 }

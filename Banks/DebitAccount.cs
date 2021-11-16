@@ -16,15 +16,16 @@ namespace Banks
         }
 
         public int Months => _months;
+        public Guid Id => _id;
 
-        public void WithdrawMoneyFromAccount(int money)
+        public void WithdrawMoneyFromAccount(double money)
         {
             if (money <= 0 || money > _money)
                 throw new ArgumentException("Invalid number of money");
             _money -= money;
         }
 
-        public void PutMoneyIntoAccount(int money)
+        public void PutMoneyIntoAccount(double money)
         {
             if (money <= 0)
                 throw new ArgumentException("Invalid number of money");
