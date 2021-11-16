@@ -4,6 +4,7 @@ namespace Banks
 {
     public class CreditAccountCreator : IAccountCreator
     {
+        private readonly Guid _id;
         private double _money;
         private int _months;
         private double _creditLimit;
@@ -19,11 +20,12 @@ namespace Banks
             _money = money;
             _months = months;
             _creditLimit = creditLimit;
+            _id = Guid.NewGuid();
         }
 
         public IAccount Create()
         {
-            return new CreditAccount(_money, _months, _creditLimit);
+            return new CreditAccount(_money, _months, _creditLimit, _id);
         }
     }
 }

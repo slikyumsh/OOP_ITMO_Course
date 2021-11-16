@@ -2,20 +2,14 @@
 
 namespace Banks
 {
-    public class DebitAccount : IAccount
+    public class CorrespondentAccount : IAccount
     {
         private double _money;
-        private int _months;
-        private double _procent;
         private Guid _id;
-
-        public DebitAccount(double money, int months, double procent, Guid id)
+        public CorrespondentAccount(double money, Guid id)
         {
-            _months = months;
             _id = id;
         }
-
-        public int Months => _months;
 
         public void WithdrawMoneyFromAccount(int money)
         {
@@ -29,13 +23,6 @@ namespace Banks
             if (money <= 0)
                 throw new ArgumentException("Invalid number of money");
             _money += money;
-        }
-
-        public void ChangeProcent(double newProcent)
-        {
-            if (newProcent <= 0)
-                throw new ArgumentException("Invalid procent");
-            _procent = newProcent;
         }
     }
 }

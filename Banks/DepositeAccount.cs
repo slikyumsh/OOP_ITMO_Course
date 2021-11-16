@@ -7,10 +7,12 @@ namespace Banks
         private double _money;
         private int _months;
         private double _procent;
+        private Guid _id;
 
-        public DepositeAccount(double money, int months, double procent)
+        public DepositeAccount(double money, int months, double procent, Guid id)
         {
             _months = months;
+            _id = id;
         }
 
         public void PutMoneyIntoAccount(int money)

@@ -4,6 +4,7 @@ namespace Banks
 {
     public class DebitAccountCreator : IAccountCreator
     {
+        private readonly Guid _id;
         private double _money;
         private int _months;
         private double _procent;
@@ -19,11 +20,12 @@ namespace Banks
             _money = money;
             _months = months;
             _procent = procent;
+            _id = Guid.NewGuid();
         }
 
         public IAccount Create()
         {
-            return new DebitAccount(_money, _months, _procent);
+            return new DebitAccount(_money, _months, _procent, _id);
         }
     }
 }

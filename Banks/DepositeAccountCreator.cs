@@ -4,6 +4,7 @@ namespace Banks
 {
     public class DepositeAccountCreator : IAccountCreator
     {
+        private readonly Guid _id;
         private double _money;
         private int _months;
         private double _procent;
@@ -19,11 +20,12 @@ namespace Banks
             if (_money < 50000) _procent = 3;
             if (_money >= 50000 && _money < 100000) _procent = 3.5;
             if (_money >= 100000) _procent = 4;
+            _id = Guid.NewGuid();
         }
 
         public IAccount Create()
         {
-            return new DepositeAccount(_money, _months, _procent);
+            return new DepositeAccount(_money, _months, _procent, _id);
         }
     }
 }
