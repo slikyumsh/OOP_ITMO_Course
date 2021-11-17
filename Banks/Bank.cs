@@ -33,6 +33,7 @@ namespace Banks
         public IAccount CorrespondentAccount => _correspondentAccount;
         public List<Client> Clients => _clients;
         public List<IAccount> Accounts => _accounts;
+        public double Money => _correspondentAccount.Money;
 
         public static void SendMessage(Message message)
         {
@@ -213,6 +214,16 @@ namespace Banks
             }
 
             return false;
+        }
+
+        public bool IsTheUserAccountBelongsThisBank(IAccount account)
+        {
+            if (account == null)
+                throw new ArgumentException("Account is null");
+            if (account is CorrespondentAccount)
+                throw new ArgumentException("Bank Account");
+            IAccount desiredAccount = _accounts.SingleOrDefault(desiredAccount => desiredAccount.Id == account.Id);
+            return !(desiredAccount is null);
         }
     }
 }

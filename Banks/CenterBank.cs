@@ -76,32 +76,51 @@ namespace Banks
                 throw new ArgumentException("One client is null");
             if (account2 == null)
                 throw new ArgumentException("One client is null");
-            Bank desiredBank1 = _banks.SingleOrDefault(desiredBank1 => desiredBank1.AccountOwnerVerification(account1));
-            if (desiredBank1 == null)
-                throw new ArgumentException("There is no bank, that contains this account");
-            Bank desiredBank2 = _banks.SingleOrDefault(desiredBank2 => desiredBank2.AccountOwnerVerification(account2));
-            if (desiredBank2 == null)
-                throw new ArgumentException("There is no bank, that contains this account");
-            if (desiredBank1.Id == desiredBank2.Id)
+            if (account1 is CorrespondentAccount && account2 is CorrespondentAccount)
             {
-                desiredBank1.MakeTransferWithinOneBank(account1, account2, money);
+                Bank desiredBank1 =
+                    _banks.SingleOrDefault(desiredBank1 => desiredBank1.CorrespondentAccount.Id == account1.Id);
+                Bank desiredBank2 =
+                    _banks.SingleOrDefault(desiredBank2 => desiredBank2.CorrespondentAccount.Id == account2.Id);
+                if (desiredBank1 == null || desiredBank2 == null)
+                    throw new ArgumentException("There is no bank, that contains this account");
+                BankTransfersMoney(desiredBank1, desiredBank2, money);
+                return;
+            }
+
+            Bank desiredBank3 = _banks.SingleOrDefault(desiredBank3 => desiredBank3.IsTheUserAccountBelongsThisBank(account1));
+            if (desiredBank3 == null)
+                throw new ArgumentException("There is no bank, that contains this account");
+            Bank desiredBank4 = _banks.SingleOrDefault(desiredBank4 => desiredBank4.IsTheUserAccountBelongsThisBank(account2));
+            if (desiredBank4 == null)
+                throw new ArgumentException("There is no bank, that contains this account");
+            if (desiredBank3.Id == desiredBank4.Id)
+            {
+                desiredBank3.MakeTransferWithinOneBank(account1, account2, money);
                 return;
             }
 
             Transaction transactionBankAndAccount1 =
-                new Transaction(account1, desiredBank1.CorrespondentAccount, money);
+                new Transaction(account1, desiredBank3.CorrespondentAccount, money);
             transactionBankAndAccount1.TransferMoney();
-            BankTransfersMoney(desiredBank1, desiredBank2, money);
+            BankTransfersMoney(desiredBank3, desiredBank4, money);
             Transaction transactionBankAndAccount2 =
-                new Transaction(desiredBank2.CorrespondentAccount, account2, money);
+                new Transaction(desiredBank4.CorrespondentAccount, account2, money);
+            transactionBankAndAccount2.TransferMoney();
+        }
+
+        public void TransferMoney(Transaction transaction)
+        {
+            if (transaction == null)
+                throw new ArgumentException("Transaction is null");
+            TransferMoney(transaction.Sender, transaction.Recipient, transaction.Money);
         }
 
         public void CancellationOfTransaction(Transaction transaction)
         {
             if (transaction == null)
                 throw new ArgumentException("Transaction is NULL");
-            transaction.ReverseTransaction();
-            TransferMoney(transaction.Sender, transaction.Recipient, transaction.Money);
+            TransferMoney(transaction.ReverseTransaction());
         }
 
         public void ModelingWorkOfTheBankingSystemAfterCertainNumberOfDays(int days, Message commissionMessage, Message percentsMessage)

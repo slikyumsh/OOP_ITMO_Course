@@ -8,10 +8,12 @@ namespace Banks
         private Guid _id;
         public CorrespondentAccount(double money)
         {
+            _money = money;
             _id = Guid.NewGuid();
         }
 
         public Guid Id => _id;
+        public double Money => _money;
 
         public void WithdrawMoneyFromAccount(double money)
         {

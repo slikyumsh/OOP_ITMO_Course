@@ -42,6 +42,8 @@ namespace Banks
             IAccount desiredInBankAccount = bank.Accounts.SingleOrDefault(desiredInBankAccount => desiredInBankAccount.Id == account.Id);
             if (desiredInBankAccount != null)
                 throw new ArgumentException("This bank already has this account");
+            if (account is CorrespondentAccount)
+                throw new ArgumentException("Client is not a bank");
             _accounts.Add(account);
             bank.AddClient(this, account);
         }

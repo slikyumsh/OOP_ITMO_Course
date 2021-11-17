@@ -48,15 +48,10 @@ namespace Banks
             return this;
         }
 
-        public ClientBuilder AddId()
+        public Client Build()
         {
             _id = _currentClientId;
             _currentClientId++;
-            return this;
-        }
-
-        public Client Build()
-        {
             return new Client(_name, _surname, _address, _passport, _phone, _id);
         }
     }
