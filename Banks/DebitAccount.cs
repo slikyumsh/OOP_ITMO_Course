@@ -4,6 +4,7 @@ namespace Banks
 {
     public class DebitAccount : IAccount
     {
+        public const double PercentageToFractionConversionFactor = 0.01;
         private double _money;
         private int _validityPeriod;
         private double _percent;
@@ -45,7 +46,7 @@ namespace Banks
 
         public void PayPercent()
         {
-            PutMoneyIntoAccount(_money * _percent / _validityPeriod);
+            PutMoneyIntoAccount(_money * _percent * PercentageToFractionConversionFactor / _validityPeriod);
         }
     }
 }

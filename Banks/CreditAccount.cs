@@ -4,6 +4,7 @@ namespace Banks
 {
     public class CreditAccount : IAccount
     {
+        private const double PercentageToFractionConversionFactor = 0.01;
         private double _money;
         private int _validityPeriod;
         private double _creditLimit;
@@ -21,6 +22,7 @@ namespace Banks
 
         public Guid Id => _id;
         public double Commission => _commission;
+        public double Money => _money;
         public void WithdrawMoneyFromAccount(double money)
         {
             if (money <= 0 || money > _money - _creditLimit)
@@ -51,7 +53,7 @@ namespace Banks
 
         public void CommissionWriteOff()
         {
-            _money -= _commission;
+            _money -= _commission * _money * PercentageToFractionConversionFactor;
         }
     }
 }
