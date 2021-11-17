@@ -6,6 +6,7 @@ namespace Banks
 {
     public class CenterBank
     {
+        private int daysPerMonth = 30;
         private List<Bank> _banks;
         private List<Client> _clients;
 
@@ -101,6 +102,18 @@ namespace Banks
                 throw new ArgumentException("Transaction is NULL");
             transaction.ReverseTransaction();
             TransferMoney(transaction.Sender, transaction.Recipient, transaction.Money);
+        }
+
+        public void ModelingWorkOfTheBankingSystemAfterCertainNumberOfDays(int days, Message commissionMessage, Message percentsMessage)
+        {
+            if (days <= 0)
+                throw new ArgumentException("Too few days");
+            for (int i = 1; i <= days; i++)
+            {
+                if (i % daysPerMonth == 0)
+                    CommissionWriteOff(commissionMessage);
+                PayProcents(percentsMessage);
+            }
         }
     }
 }
