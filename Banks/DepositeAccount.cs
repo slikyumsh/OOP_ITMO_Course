@@ -5,13 +5,13 @@ namespace Banks
     public class DepositeAccount : IAccount
     {
         private double _money;
-        private int _months;
+        private int _validityPeriod;
         private double _procent;
         private Guid _id;
 
-        public DepositeAccount(double money, int months, double procent, Guid id)
+        public DepositeAccount(double money, int validityPeriod, double procent, Guid id)
         {
-            _months = months;
+            _validityPeriod = validityPeriod;
             _id = id;
         }
 
@@ -45,7 +45,7 @@ namespace Banks
 
         public void PayProcent()
         {
-            PutMoneyIntoAccount(_money * _procent / _months);
+            PutMoneyIntoAccount(_money * _procent / _validityPeriod);
         }
     }
 }

@@ -5,14 +5,14 @@ namespace Banks
     public class CreditAccount : IAccount
     {
         private double _money;
-        private int _months;
+        private int _validityPeriod;
         private double _creditLimit;
         private Guid _id;
         private double _commission;
 
-        public CreditAccount(double money, int months, double creditLimit, Guid id, double commission)
+        public CreditAccount(double money, int validityPeriod, double creditLimit, Guid id, double commission)
         {
-            _months = months;
+            _validityPeriod = validityPeriod;
             _id = id;
         }
 
