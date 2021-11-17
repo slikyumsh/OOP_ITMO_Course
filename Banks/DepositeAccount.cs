@@ -11,6 +11,8 @@ namespace Banks
 
         public DepositeAccount(double money, int validityPeriod, double percent, Guid id)
         {
+            _money = money;
+            _percent = percent;
             _validityPeriod = validityPeriod;
             _id = id;
         }

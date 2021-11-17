@@ -14,7 +14,7 @@ namespace Banks
         private PhoneNumber _phone;
         private List<IAccount> _accounts;
 
-        public Client(string name, string surname, string address, string passport, PhoneNumber phone, List<IAccount> accounts, int id)
+        public Client(string name, string surname, string address, string passport, PhoneNumber phone, int id)
         {
             _name = name;
             _surname = surname;
@@ -22,7 +22,7 @@ namespace Banks
             _passport = passport;
             _phone = phone;
             _id = id;
-            _accounts = accounts;
+            _accounts = new List<IAccount>();
         }
 
         public int Id => _id;

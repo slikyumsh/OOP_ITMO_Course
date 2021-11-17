@@ -11,12 +11,16 @@ namespace Banks
 
         public DebitAccount(double money, int validityPeriod, double percent, Guid id)
         {
+            _money = money;
             _validityPeriod = validityPeriod;
             _id = id;
+            _percent = percent;
         }
 
         public int ValidityPeriod => _validityPeriod;
+        public double Percent => _percent;
         public Guid Id => _id;
+        public double Money => _money;
 
         public void WithdrawMoneyFromAccount(double money)
         {

@@ -51,6 +51,7 @@ namespace Banks
             if (desiredAccount != null)
                 throw new ArgumentException("We already have this account");
             _clients.Add(client);
+            _accounts.Add(account);
         }
 
         public void AddObserver(Client client)

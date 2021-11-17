@@ -13,7 +13,6 @@ namespace Banks
         private string _address;
         private string _passport;
         private PhoneNumber _phone;
-        private List<IAccount> _accounts;
 
         public ClientBuilder AddName(string name)
         {
@@ -49,12 +48,6 @@ namespace Banks
             return this;
         }
 
-        public ClientBuilder AddListAccounts()
-        {
-            _accounts = new List<IAccount>();
-            return this;
-        }
-
         public ClientBuilder AddId()
         {
             _id = _currentClientId;
@@ -64,7 +57,7 @@ namespace Banks
 
         public Client Build()
         {
-            return new Client(_name, _surname, _address, _passport, _phone, _accounts, _id);
+            return new Client(_name, _surname, _address, _passport, _phone, _id);
         }
     }
 }

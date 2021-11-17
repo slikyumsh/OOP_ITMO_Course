@@ -12,11 +12,15 @@ namespace Banks
 
         public CreditAccount(double money, int validityPeriod, double creditLimit, Guid id, double commission)
         {
+            _commission = commission;
+            _money = money;
+            _creditLimit = creditLimit;
             _validityPeriod = validityPeriod;
             _id = id;
         }
 
         public Guid Id => _id;
+        public double Commission => _commission;
         public void WithdrawMoneyFromAccount(double money)
         {
             if (money <= 0 || money > _money - _creditLimit)

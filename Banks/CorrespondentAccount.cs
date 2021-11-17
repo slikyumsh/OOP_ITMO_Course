@@ -6,9 +6,9 @@ namespace Banks
     {
         private double _money;
         private Guid _id;
-        public CorrespondentAccount(double money, Guid id)
+        public CorrespondentAccount(double money)
         {
-            _id = id;
+            _id = Guid.NewGuid();
         }
 
         public Guid Id => _id;
