@@ -44,5 +44,10 @@ namespace Banks
                 throw new ArgumentException("Invalid commission");
             _commission = newCommission;
         }
+
+        public void CommissionWriteOff()
+        {
+            _money -= _commission;
+        }
     }
 }

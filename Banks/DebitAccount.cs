@@ -38,5 +38,10 @@ namespace Banks
                 throw new ArgumentException("Invalid procent");
             _procent = newProcent;
         }
+
+        public void PayProcent()
+        {
+            PutMoneyIntoAccount(_money * _procent / _months);
+        }
     }
 }

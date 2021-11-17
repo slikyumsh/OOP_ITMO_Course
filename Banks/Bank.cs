@@ -30,6 +30,7 @@ namespace Banks
         }
 
         public Guid Id => _id;
+        public IAccount CorrespondentAccount => _correspondentAccount;
         public List<Client> Clients => _clients;
         public List<IAccount> Accounts => _accounts;
 
@@ -48,26 +49,21 @@ namespace Banks
             _clients.Add(client);
         }
 
-        public void ChangeProcent(int newProcent)
-        {
-            if (newProcent < 0)
-                throw new ArgumentException("Invalid Procent");
-            _procent = newProcent;
-        }
-
-        public void ChangeComission(int newComission)
-        {
-            if (newComission < 0)
-                throw new ArgumentException("Invalid Comission");
-            _procent = newComission;
-        }
-
         public void AddObserver(Client client)
         {
             Client desiredClient = _observers.SingleOrDefault(desiredClient => desiredClient.Id == client.Id);
             if (desiredClient != null)
                 throw new ArgumentException("This client has already observed");
-            _observers.Add(client);
+            foreach (var account in _accounts)
+            {
+                if (client.DoesThisAccountBelongToThisClient(account))
+                {
+                    _observers.Add(client);
+                    return;
+                }
+            }
+
+            throw new ArgumentException("Client hasn't any accounts in this bank");
         }
 
         public void RemoveObserver(Client client)
@@ -110,17 +106,22 @@ namespace Banks
 
         public void MakeTransferWithinOneBank(IAccount account1, IAccount account2, double money)
         {
-            if ((AccountOwnerVerification(account1) && AccountOwnerVerification(account2) == false) &&
+            if ((AccountOwnerVerification(account1) && AccountOwnerVerification(account2) == false) ||
                 money > _limitForNotConfirmedClients)
                 throw new ArgumentException("Bank transfer denied due to suspicion of fraud");
-            Transaction transaction = new Transaction(account1, account2, money);
-            transaction.TransferMoney();
+            Transaction transactionBankAndAccount1 = new Transaction(account1, _correspondentAccount, money);
+            transactionBankAndAccount1.TransferMoney();
+            Transaction transactionBankAndAccount2 = new Transaction(_correspondentAccount, account2, money);
+            transactionBankAndAccount2.TransferMoney();
         }
 
-        public void CancelTransferWithinOneBank(IAccount account1, IAccount account2, double money)
+        public void CancelTransferWithinOneBank(Transaction transaction)
         {
-            Transaction transaction = new Transaction(account1, account2, money);
-            transaction.СancellationTransferMoney();
+            transaction.ReverseTransaction();
+            Transaction transactionBankAndAccount1 = new Transaction(transaction.Sender, _correspondentAccount, transaction.Money);
+            transactionBankAndAccount1.TransferMoney();
+            Transaction transactionBankAndAccount2 = new Transaction(_correspondentAccount, transaction.Recipient, transaction.Money);
+            transactionBankAndAccount2.TransferMoney();
         }
 
         public void ChangeProcent(double procent, Message message)
@@ -166,6 +167,51 @@ namespace Banks
                         break;
                 }
             }
+        }
+
+        public void PayProcents(Message message)
+        {
+            NotifyObservers(message);
+            foreach (var account in _accounts)
+            {
+                if (AccountOwnerVerification(account))
+                {
+                    switch (account)
+                    {
+                        case DepositeAccount depositeAccount:
+                            depositeAccount.PayProcent();
+                            break;
+                        case DebitAccount debitAccount:
+                            debitAccount.PayProcent();
+                            break;
+                    }
+                }
+            }
+        }
+
+        public void CommissionWriteOff(Message message)
+        {
+            NotifyObservers(message);
+            foreach (var account in _accounts)
+            {
+                switch (account)
+                    {
+                        case CreditAccount creditAccount:
+                            creditAccount.CommissionWriteOff();
+                            break;
+                    }
+            }
+        }
+
+        public bool IsTheClientUserOfThisBank(Client client)
+        {
+            foreach (var account in _accounts)
+            {
+                if (client.DoesThisAccountBelongToThisClient(account))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

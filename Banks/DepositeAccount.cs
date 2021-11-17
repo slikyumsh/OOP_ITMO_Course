@@ -42,5 +42,10 @@ namespace Banks
             CanWithdrawMoneyFromAccount(money);
             _money -= money;
         }
+
+        public void PayProcent()
+        {
+            PutMoneyIntoAccount(_money * _procent / _months);
+        }
     }
 }

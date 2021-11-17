@@ -4,10 +4,10 @@ namespace Banks
 {
     public class Transaction
     {
-        private IAccount _sender;
-        private IAccount _recipient;
-        private double _money;
-        private Guid _id;
+        private readonly IAccount _sender;
+        private readonly IAccount _recipient;
+        private readonly double _money;
+        private readonly Guid _id;
 
         public Transaction(IAccount sender, IAccount recipient, double money)
         {
@@ -25,6 +25,10 @@ namespace Banks
             _id = Guid.NewGuid();
         }
 
+        public IAccount Sender => _sender;
+        public IAccount Recipient => _recipient;
+        public double Money => _money;
+
         public Transaction ReverseTransaction()
         {
             return new Transaction(_recipient, _sender, _money);
@@ -34,13 +38,6 @@ namespace Banks
         {
             _sender.WithdrawMoneyFromAccount(_money);
             _recipient.PutMoneyIntoAccount(_money);
-        }
-
-        public void СancellationTransferMoney()
-        {
-            ReverseTransaction();
-            _recipient.WithdrawMoneyFromAccount(_money);
-            _sender.PutMoneyIntoAccount(_money);
         }
     }
 }
