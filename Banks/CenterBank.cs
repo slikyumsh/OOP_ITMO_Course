@@ -32,7 +32,7 @@ namespace Banks
             _clients.Add(client);
         }
 
-        public void PayProcents(Message message)
+        public void PayPercents(Message message)
         {
             foreach (var bank in _banks)
             {
@@ -48,12 +48,12 @@ namespace Banks
             }
         }
 
-        public void ChangeProcent(Bank bank, double newProcent, Message message)
+        public void ChangePercent(Bank bank, double newPercent, Message message)
         {
             Bank desiredBank = _banks.SingleOrDefault(desiredBank => desiredBank.Id == bank.Id);
             if (desiredBank == null)
                 throw new ArgumentException("Center Bank hasn't any banks with this Bank-Id");
-            bank.ChangeProcent(newProcent, message);
+            bank.ChangePercent(newPercent, message);
         }
 
         public void ChangeCommission(Bank bank, double newCommission, Message message)
@@ -61,7 +61,7 @@ namespace Banks
             Bank desiredBank = _banks.SingleOrDefault(desiredBank => desiredBank.Id == bank.Id);
             if (desiredBank == null)
                 throw new ArgumentException("Center Bank hasn't any banks with this Bank-Id");
-            bank.ChangeProcent(newCommission, message);
+            bank.ChangeCommission(newCommission, message);
         }
 
         public void BankTransfersMoney(Bank bank1, Bank bank2, double money)
@@ -112,7 +112,7 @@ namespace Banks
             {
                 if (i % daysPerMonth == 0)
                     CommissionWriteOff(commissionMessage);
-                PayProcents(percentsMessage);
+                PayPercents(percentsMessage);
             }
         }
     }

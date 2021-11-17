@@ -16,12 +16,12 @@ namespace Banks
         private List<Client> _observers;
         private List<IAccount> _accounts;
 
-        public Bank(string name, int procent, int comission, int limitForNotConfirmedClients, CorrespondentAccount correspondentAccount)
+        public Bank(string name, int percent, int commission, int limitForNotConfirmedClients, CorrespondentAccount correspondentAccount)
         {
             _id = Guid.NewGuid();
             _name = name;
-            _procent = procent;
-            _comission = comission;
+            _procent = percent;
+            _comission = commission;
             _limitForNotConfirmedClients = limitForNotConfirmedClients;
             _clients = new List<Client>();
             _observers = new List<Client>();
@@ -33,6 +33,10 @@ namespace Banks
         public IAccount CorrespondentAccount => _correspondentAccount;
         public List<Client> Clients => _clients;
         public List<IAccount> Accounts => _accounts;
+
+        public static void SendMessage(Message message)
+        {
+        }
 
         public void AddClient(Client client, IAccount account)
         {
@@ -74,10 +78,6 @@ namespace Banks
             _observers.Remove(client);
         }
 
-        public void SendMessage(Message message)
-        {
-        }
-
         public void NotifyObservers(Message message)
         {
             foreach (var observer in _observers)
@@ -97,7 +97,7 @@ namespace Banks
             {
                 if (client.DoesThisAccountBelongToThisClient(account))
                 {
-                    return !(client.Adress is null || client.Passport is null);
+                    return !(client.Address is null || client.Passport is null);
                 }
             }
 
@@ -124,7 +124,7 @@ namespace Banks
             transactionBankAndAccount2.TransferMoney();
         }
 
-        public void ChangeProcent(double procent, Message message)
+        public void ChangePercent(double percent, Message message)
         {
             NotifyObservers(message);
             foreach (var account in _accounts)
@@ -132,10 +132,10 @@ namespace Banks
                 switch (account)
                 {
                     case DepositeAccount depositeAccount:
-                        depositeAccount.ChangeProcent(procent);
+                        depositeAccount.ChangePercent(percent);
                         break;
                     case DebitAccount debitAccount:
-                        debitAccount.ChangeProcent(procent);
+                        debitAccount.ChangePercent(percent);
                         break;
                 }
             }
@@ -179,10 +179,10 @@ namespace Banks
                     switch (account)
                     {
                         case DepositeAccount depositeAccount:
-                            depositeAccount.PayProcent();
+                            depositeAccount.PayPercent();
                             break;
                         case DebitAccount debitAccount:
-                            debitAccount.PayProcent();
+                            debitAccount.PayPercent();
                             break;
                     }
                 }

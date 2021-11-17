@@ -7,25 +7,25 @@ namespace Banks
         private readonly Guid _id;
         private double _money;
         private int _validityPeriod;
-        private double _procent;
+        private double _percent;
 
-        public DebitAccountCreator(double money, int validityPeriod, double procent)
+        public DebitAccountCreator(double money, int validityPeriod, double percent)
         {
             if (money <= 0)
                 throw new ArgumentException("Invalid number of money");
             if (validityPeriod <= 0)
                 throw new ArgumentException("Invalid number of months");
-            if (procent <= 0)
-                throw new ArgumentException("Invalid procent");
+            if (percent <= 0)
+                throw new ArgumentException("Invalid percent");
             _money = money;
             _validityPeriod = validityPeriod;
-            _procent = procent;
+            _percent = percent;
             _id = Guid.NewGuid();
         }
 
         public IAccount Create()
         {
-            return new DebitAccount(_money, _validityPeriod, _procent, _id);
+            return new DebitAccount(_money, _validityPeriod, _percent, _id);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Banks
         }
 
         public int Id => _id;
-        public string Adress => _address;
+        public string Address => _address;
         public string Passport => _passport;
         public List<IAccount> Accounts => _accounts;
 

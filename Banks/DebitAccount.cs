@@ -6,10 +6,10 @@ namespace Banks
     {
         private double _money;
         private int _validityPeriod;
-        private double _procent;
+        private double _percent;
         private Guid _id;
 
-        public DebitAccount(double money, int validityPeriod, double procent, Guid id)
+        public DebitAccount(double money, int validityPeriod, double percent, Guid id)
         {
             _validityPeriod = validityPeriod;
             _id = id;
@@ -32,16 +32,16 @@ namespace Banks
             _money += money;
         }
 
-        public void ChangeProcent(double newProcent)
+        public void ChangePercent(double newPercent)
         {
-            if (newProcent <= 0)
-                throw new ArgumentException("Invalid procent");
-            _procent = newProcent;
+            if (newPercent <= 0)
+                throw new ArgumentException("Invalid percent");
+            _percent = newPercent;
         }
 
-        public void PayProcent()
+        public void PayPercent()
         {
-            PutMoneyIntoAccount(_money * _procent / _validityPeriod);
+            PutMoneyIntoAccount(_money * _percent / _validityPeriod);
         }
     }
 }
