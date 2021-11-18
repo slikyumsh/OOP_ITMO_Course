@@ -15,17 +15,17 @@ namespace Banks.Tests
         [Test]
         public void TryChangeProcent()
         {
-            Bank bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            ClientBuilder builder = new ClientBuilder();
+            var builder = new ClientBuilder();
             builder.AddName("DIMA");
             builder.AddSurname("DIMA");
             builder.AddAddress("DIMA");
             builder.AddPassport("DIMA");
             Client client = builder.Build();
-            DebitAccountCreator debitAccountCreator = new DebitAccountCreator(1000, 365, 10d);
+            var debitAccountCreator = new DebitAccountCreator(1000, 365, 10d);
             IAccount account = debitAccountCreator.Create();
-            DebitAccount account1 = account as DebitAccount;
+            var account1 = account as DebitAccount;
             Assert.AreEqual(1000, account1.Money);
             Assert.AreEqual(10d, account1.Percent);
             client.OpenNewAccount(bank, account);
@@ -37,17 +37,17 @@ namespace Banks.Tests
         [Test]
         public void TryChangeCommission()
         {
-            Bank bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            ClientBuilder builder = new ClientBuilder();
+            var builder = new ClientBuilder();
             builder.AddName("DIMA");
             builder.AddSurname("DIMA");
             builder.AddAddress("DIMA");
             builder.AddPassport("DIMA");
             Client client = builder.Build();
-            CreditAccountCreator debitAccountCreator = new CreditAccountCreator(1000, 365, 10000, 10d);
+            var debitAccountCreator = new CreditAccountCreator(1000, 365, 10000, 10d);
             IAccount account = debitAccountCreator.Create();
-            CreditAccount account1 = account as CreditAccount;
+            var account1 = account as CreditAccount;
             Assert.AreEqual(10d, account1.Commission);
             client.OpenNewAccount(bank, account);
             _centerBank.AddClient(client);
@@ -58,17 +58,17 @@ namespace Banks.Tests
         [Test]
         public void TryWriteOffCommission()
         {
-            Bank bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            ClientBuilder builder = new ClientBuilder();
+            var builder = new ClientBuilder();
             builder.AddName("DIMA");
             builder.AddSurname("DIMA");
             builder.AddAddress("DIMA");
             builder.AddPassport("DIMA");
             Client client = builder.Build();
-            CreditAccountCreator debitAccountCreator = new CreditAccountCreator(1000, 365, 10000, 10);
+            var debitAccountCreator = new CreditAccountCreator(1000, 365, 10000, 10);
             IAccount account = debitAccountCreator.Create();
-            CreditAccount account1 = account as CreditAccount;
+            var account1 = account as CreditAccount;
             client.OpenNewAccount(bank, account);
             _centerBank.AddClient(client);
            _centerBank.CommissionWriteOff(new Message("Give me your money"));
@@ -78,17 +78,17 @@ namespace Banks.Tests
         [Test]
         public void TryPayProcents()
         {
-            Bank bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            ClientBuilder builder = new ClientBuilder();
+            var builder = new ClientBuilder();
             builder.AddName("DIMA");
             builder.AddSurname("DIMA");
             builder.AddAddress("DIMA");
             builder.AddPassport("DIMA");
             Client client = builder.Build();
-            DebitAccountCreator debitAccountCreator = new DebitAccountCreator(1000, 365, 365);
+            var debitAccountCreator = new DebitAccountCreator(1000, 365, 365);
             IAccount account = debitAccountCreator.Create();
-            DebitAccount account1 = account as DebitAccount;
+            var account1 = account as DebitAccount;
             client.OpenNewAccount(bank, account);
             _centerBank.AddClient(client);
             _centerBank.PayPercents(new Message("Money-money-money"));
@@ -98,9 +98,9 @@ namespace Banks.Tests
         [Test]
         public void SuccessTryDoBankTransaction()
         {
-            Bank bank1 = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank1 = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank1);
-            Bank bank2 = new Bank("Sberbank", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank2 = new Bank("Sberbank", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank2);
             _centerBank.TransferMoney(bank1.CorrespondentAccount, bank2.CorrespondentAccount, 100000);
             Assert.AreEqual(9900000, bank1.Money);
@@ -110,29 +110,29 @@ namespace Banks.Tests
         [Test]
         public void TryDoTransactionBetweenTwoClientsOfOneBank()
         {
-            Bank bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            ClientBuilder builder1 = new ClientBuilder();
+            var builder1 = new ClientBuilder();
             builder1.AddName("DIMA");
             builder1.AddSurname("DIMA");
             builder1.AddAddress("DIMA");
             builder1.AddPassport("DIMA");
             Client client1 = builder1.Build();
-            DebitAccountCreator debitAccountCreator1 = new DebitAccountCreator(1000, 365, 365);
+            var debitAccountCreator1 = new DebitAccountCreator(1000, 365, 365);
             IAccount account0 = debitAccountCreator1.Create();
-            DebitAccount account1 = account0 as DebitAccount;
+            var account1 = account0 as DebitAccount;
             client1.OpenNewAccount(bank, account1);
             _centerBank.AddClient(client1);
 
-            ClientBuilder builder2 = new ClientBuilder();
+            var builder2 = new ClientBuilder();
             builder2.AddName("DIMA");
             builder2.AddSurname("DIMA");
             builder2.AddAddress("DIMA");
             builder2.AddPassport("DIMA");
             Client client2 = builder2.Build();
-            DebitAccountCreator debitAccountCreator2 = new DebitAccountCreator(1000, 365, 365);
+            var debitAccountCreator2 = new DebitAccountCreator(1000, 365, 365);
             IAccount account2 = debitAccountCreator2.Create();
-            DebitAccount account3 = account2 as DebitAccount;
+            var account3 = account2 as DebitAccount;
             client2.OpenNewAccount(bank, account3);
             _centerBank.AddClient(client2);
             
@@ -144,30 +144,30 @@ namespace Banks.Tests
         [Test]
         public void TryDoTransactionBetweenTwoClientsOfDifferentBanks()
         {
-            Bank bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            Bank bank1 = new Bank("Sber", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank1 = new Bank("Sber", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank1);
-            ClientBuilder builder1 = new ClientBuilder();
+            var builder1 = new ClientBuilder();
             builder1.AddName("DIMA");
             builder1.AddSurname("DIMA");
             builder1.AddAddress("DIMA");
             builder1.AddPassport("DIMA");
             Client client1 = builder1.Build();
-            DebitAccountCreator debitAccountCreator1 = new DebitAccountCreator(1000, 365, 365);
+            var debitAccountCreator1 = new DebitAccountCreator(1000, 365, 365);
             IAccount account0 = debitAccountCreator1.Create();
-            DebitAccount account1 = account0 as DebitAccount;
+            var account1 = account0 as DebitAccount;
             client1.OpenNewAccount(bank, account1);
             _centerBank.AddClient(client1);
-            ClientBuilder builder2 = new ClientBuilder();
+            var builder2 = new ClientBuilder();
             builder2.AddName("DIMA");
             builder2.AddSurname("DIMA");
             builder2.AddAddress("DIMA");
             builder2.AddPassport("DIMA");
             Client client2 = builder2.Build();
-            DebitAccountCreator debitAccountCreator2 = new DebitAccountCreator(1000, 365, 365);
+            var debitAccountCreator2 = new DebitAccountCreator(1000, 365, 365);
             IAccount account2 = debitAccountCreator2.Create();
-            DebitAccount account3 = account2 as DebitAccount;
+            var account3 = account2 as DebitAccount;
             client2.OpenNewAccount(bank1, account3);
             _centerBank.AddClient(client2);
             Assert.AreEqual(true, bank1.AccountOwnerVerification(account3));
@@ -179,33 +179,33 @@ namespace Banks.Tests
         [Test]
         public void TryDoCancelTransactionBetweenTwoClientsOfDifferentBanks()
         {
-            Bank bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            Bank bank1 = new Bank("Sber", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank1 = new Bank("Sber", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank1);
-            ClientBuilder builder1 = new ClientBuilder();
+            var builder1 = new ClientBuilder();
             builder1.AddName("DIMA");
             builder1.AddSurname("DIMA");
             builder1.AddAddress("DIMA");
             builder1.AddPassport("DIMA");
             Client client1 = builder1.Build();
-            DebitAccountCreator debitAccountCreator1 = new DebitAccountCreator(1000, 365, 365);
+            var debitAccountCreator1 = new DebitAccountCreator(1000, 365, 365);
             IAccount account0 = debitAccountCreator1.Create();
-            DebitAccount account1 = account0 as DebitAccount;
+            var account1 = account0 as DebitAccount;
             client1.OpenNewAccount(bank, account1);
             _centerBank.AddClient(client1);
-            ClientBuilder builder2 = new ClientBuilder();
+            var builder2 = new ClientBuilder();
             builder2.AddName("DIMA");
             builder2.AddSurname("DIMA");
             builder2.AddAddress("DIMA");
             builder2.AddPassport("DIMA");
             Client client2 = builder2.Build();
-            DebitAccountCreator debitAccountCreator2 = new DebitAccountCreator(1000, 365, 365);
+            var debitAccountCreator2 = new DebitAccountCreator(1000, 365, 365);
             IAccount account2 = debitAccountCreator2.Create();
-            DebitAccount account3 = account2 as DebitAccount;
+            var account3 = account2 as DebitAccount;
             client2.OpenNewAccount(bank1, account3);
             _centerBank.AddClient(client2);
-            Transaction transaction = new Transaction(account3, account1, 1000);
+            var transaction = new Transaction(account3, account1, 1000);
             _centerBank.TransferMoney(transaction);
             Assert.AreEqual(2000, account1.Money);
             Assert.AreEqual(0, account3.Money);
@@ -217,18 +217,18 @@ namespace Banks.Tests
         [Test]
         public void TryTimeModelling()
         {
-            Bank bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
+            var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
            
-            ClientBuilder builder1 = new ClientBuilder();
+            var builder1 = new ClientBuilder();
             builder1.AddName("DIMA");
             builder1.AddSurname("DIMA");
             builder1.AddAddress("DIMA");
             builder1.AddPassport("DIMA");
             Client client1 = builder1.Build();
-            DebitAccountCreator debitAccountCreator1 = new DebitAccountCreator(1000, 365, 365);
+            var debitAccountCreator1 = new DebitAccountCreator(1000, 365, 365);
             IAccount account0 = debitAccountCreator1.Create();
-            DebitAccount account1 = account0 as DebitAccount;
+            var account1 = account0 as DebitAccount;
             client1.OpenNewAccount(bank, account1);
             _centerBank.AddClient(client1);
             _centerBank.ModelingWorkOfTheBankingSystemAfterCertainNumberOfDays(31, new Message("GoodBye money"), new Message("Hello Money"));
