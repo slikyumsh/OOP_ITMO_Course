@@ -28,7 +28,7 @@ namespace Banks
         public int Id => _id;
         public string Address => _address;
         public string Passport => _passport;
-        public List<IAccount> Accounts => _accounts;
+        public IReadOnlyCollection<IAccount> Accounts => _accounts;
 
         public void OpenNewAccount(Bank bank, IAccount account)
         {
@@ -53,7 +53,7 @@ namespace Banks
             if (account == null)
                 throw new ArgumentException("Null bank account");
             IAccount desiredAccount = _accounts.SingleOrDefault(desiredAccount => desiredAccount.Id == account.Id);
-            return !(desiredAccount is null);
+            return desiredAccount != null;
         }
     }
 }

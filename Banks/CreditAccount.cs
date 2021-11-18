@@ -5,36 +5,34 @@ namespace Banks
     public class CreditAccount : IAccount
     {
         private const double PercentageToFractionConversionFactor = 0.01;
-        private double _money;
         private int _validityPeriod;
         private double _creditLimit;
-        private Guid _id;
         private double _commission;
 
         public CreditAccount(double money, int validityPeriod, double creditLimit, Guid id, double commission)
         {
             _commission = commission;
-            _money = money;
+            Money = money;
             _creditLimit = creditLimit;
             _validityPeriod = validityPeriod;
-            _id = id;
+            Id = id;
         }
 
-        public Guid Id => _id;
+        public Guid Id { get; }
+        public double Money { get; private set; }
         public double Commission => _commission;
-        public double Money => _money;
         public void WithdrawMoneyFromAccount(double money)
         {
-            if (money <= 0 || money > _money - _creditLimit)
+            if (money <= 0 || money > Money - _creditLimit)
                 throw new ArgumentException("Invalid number of money");
-            _money -= money;
+            Money -= money;
         }
 
         public void PutMoneyIntoAccount(double money)
         {
             if (money <= 0)
                 throw new ArgumentException("Invalid number of money");
-            _money += money;
+            Money += money;
         }
 
         public void ChangeCreditLimit(double newCreditLimit)
@@ -53,7 +51,7 @@ namespace Banks
 
         public void CommissionWriteOff()
         {
-            _money -= _commission * _money * PercentageToFractionConversionFactor;
+            Money -= _commission * Money * PercentageToFractionConversionFactor;
         }
     }
 }

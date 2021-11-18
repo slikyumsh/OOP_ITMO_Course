@@ -6,7 +6,8 @@ namespace Banks
 {
     public class Bank : IObservable
     {
-        private readonly Guid _id;
+        private static int _numberOfBanks;
+        private readonly int _id;
         private readonly string _name;
         private readonly double _limitForNotConfirmedClients;
         private readonly CorrespondentAccount _correspondentAccount;
@@ -18,7 +19,7 @@ namespace Banks
 
         public Bank(string name, int percent, int commission, int limitForNotConfirmedClients, CorrespondentAccount correspondentAccount)
         {
-            _id = Guid.NewGuid();
+            _id = _numberOfBanks++;
             _name = name;
             _procent = percent;
             _comission = commission;
@@ -29,17 +30,21 @@ namespace Banks
             _correspondentAccount = correspondentAccount;
         }
 
-        public Guid Id => _id;
+        public int Id => _id;
         public IAccount CorrespondentAccount => _correspondentAccount;
-        public List<Client> Clients => _clients;
-        public List<IAccount> Accounts => _accounts;
+        public IReadOnlyList<Client> Clients => _clients;
+        public IReadOnlyList<IAccount> Accounts => _accounts;
         public double Money => _correspondentAccount.Money;
 
-        public static void SendMessage(Message message)
+        public void SendMessage(Message message, Client client)
         {
+            if (message is null)
+                throw new ArgumentException("Null message");
+            if (client is null)
+                throw new ArgumentException("Null client");
         }
 
-        public void AddClient(Client client, IAccount account)
+        public Client AddClient(Client client, IAccount account)
         {
             if (client == null)
                 throw new ArgumentException("Client is null");
@@ -53,6 +58,7 @@ namespace Banks
                 throw new ArgumentException("We already have this account");
             _clients.Add(client);
             _accounts.Add(account);
+            return client;
         }
 
         public void AddObserver(Client client)
@@ -60,7 +66,7 @@ namespace Banks
             Client desiredClient = _observers.SingleOrDefault(desiredClient => desiredClient.Id == client.Id);
             if (desiredClient != null)
                 throw new ArgumentException("This client has already observed");
-            foreach (var account in _accounts)
+            foreach (IAccount account in _accounts)
             {
                 if (client.DoesThisAccountBelongToThisClient(account))
                 {
@@ -82,9 +88,9 @@ namespace Banks
 
         public void NotifyObservers(Message message)
         {
-            foreach (var observer in _observers)
+            foreach (Client observer in _observers)
             {
-                SendMessage(message);
+                SendMessage(message, observer);
             }
         }
 
@@ -95,41 +101,41 @@ namespace Banks
             IAccount desiredAccount = _accounts.SingleOrDefault(desiredAccount => desiredAccount.Id == account.Id);
             if (desiredAccount == null)
                 throw new ArgumentException("We haven't this account");
-            foreach (var client in _clients)
+            foreach (Client client in _clients)
             {
                 if (client.DoesThisAccountBelongToThisClient(account))
                 {
-                    return !(client.Address is null || client.Passport is null);
+                    if (client.Address != null && client.Passport != null)
+                        return true;
                 }
             }
 
-            return true;
+            return false;
         }
 
         public void MakeTransferWithinOneBank(IAccount account1, IAccount account2, double money)
         {
-            if ((AccountOwnerVerification(account1) && AccountOwnerVerification(account2) == false) ||
-                money > _limitForNotConfirmedClients)
-                throw new ArgumentException("Bank transfer denied due to suspicion of fraud");
-            Transaction transactionBankAndAccount1 = new Transaction(account1, _correspondentAccount, money);
+            if ((!AccountOwnerVerification(account1) || !AccountOwnerVerification(account2)) && money > _limitForNotConfirmedClients)
+                throw new ArgumentException("Bank transfer denied due to suspicion of fraud1");
+            var transactionBankAndAccount1 = new Transaction(account1, _correspondentAccount, money);
             transactionBankAndAccount1.TransferMoney();
-            Transaction transactionBankAndAccount2 = new Transaction(_correspondentAccount, account2, money);
+            var transactionBankAndAccount2 = new Transaction(_correspondentAccount, account2, money);
             transactionBankAndAccount2.TransferMoney();
         }
 
         public void CancelTransferWithinOneBank(Transaction transaction)
         {
             transaction.ReverseTransaction();
-            Transaction transactionBankAndAccount1 = new Transaction(transaction.Sender, _correspondentAccount, transaction.Money);
+            var transactionBankAndAccount1 = new Transaction(transaction.Sender, _correspondentAccount, transaction.Money);
             transactionBankAndAccount1.TransferMoney();
-            Transaction transactionBankAndAccount2 = new Transaction(_correspondentAccount, transaction.Recipient, transaction.Money);
+            var transactionBankAndAccount2 = new Transaction(_correspondentAccount, transaction.Recipient, transaction.Money);
             transactionBankAndAccount2.TransferMoney();
         }
 
         public void ChangePercent(double percent, Message message)
         {
             NotifyObservers(message);
-            foreach (var account in _accounts)
+            foreach (IAccount account in _accounts)
             {
                 switch (account)
                 {
@@ -146,21 +152,21 @@ namespace Banks
         public void ChangeCommission(double commission, Message message)
         {
             NotifyObservers(message);
-            foreach (var account in _accounts)
+            foreach (IAccount account in _accounts)
             {
                 switch (account)
-                    {
-                        case CreditAccount creditAccount:
-                            creditAccount.ChangeCommission(commission);
-                            break;
-                    }
+                {
+                    case CreditAccount creditAccount:
+                        creditAccount.ChangeCommission(commission);
+                        break;
+                }
             }
         }
 
         public void ChangeCreditLimit(double creditLimit, Message message)
         {
             NotifyObservers(message);
-            foreach (var account in _accounts)
+            foreach (IAccount account in _accounts)
             {
                 switch (account)
                 {
@@ -171,10 +177,10 @@ namespace Banks
             }
         }
 
-        public void PayProcents(Message message)
+        public void PayPercents(Message message)
         {
             NotifyObservers(message);
-            foreach (var account in _accounts)
+            foreach (IAccount account in _accounts)
             {
                 if (AccountOwnerVerification(account))
                 {
@@ -194,7 +200,7 @@ namespace Banks
         public void CommissionWriteOff(Message message)
         {
             NotifyObservers(message);
-            foreach (var account in _accounts)
+            foreach (IAccount account in _accounts)
             {
                 switch (account)
                     {
@@ -207,7 +213,7 @@ namespace Banks
 
         public bool IsTheClientUserOfThisBank(Client client)
         {
-            foreach (var account in _accounts)
+            foreach (IAccount account in _accounts)
             {
                 if (client.DoesThisAccountBelongToThisClient(account))
                     return true;
