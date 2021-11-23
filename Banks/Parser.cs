@@ -7,8 +7,8 @@ namespace Banks
 {
     public class Parser
     {
-        private string _commandName;
-        private List<string> _arguments;
+        private readonly string _commandName;
+        private readonly List<string> _arguments;
 
         public Parser(string input)
         {
@@ -36,51 +36,6 @@ namespace Banks
                 {
                     result += input[i];
                 }
-            }
-
-            switch (_commandName)
-            {
-                case PossibleCommandName.CreateClient:
-                    _commandName = PossibleCommandName.CreateClient;
-                    break;
-                case PossibleCommandName.CreateBank:
-                    _commandName = PossibleCommandName.CreateBank;
-                    break;
-                case PossibleCommandName.CancelTransaction:
-                    _commandName = PossibleCommandName.CancelTransaction;
-                    break;
-                case PossibleCommandName.GetCommission:
-                    _commandName = PossibleCommandName.GetCommission;
-                    break;
-                case PossibleCommandName.PayPercents:
-                    _commandName = PossibleCommandName.PayPercents;
-                    break;
-                case PossibleCommandName.AddClientToBankWithDepositeAccount:
-                    _commandName = PossibleCommandName.AddClientToBankWithDepositeAccount;
-                    break;
-                case PossibleCommandName.TransferMoney:
-                    _commandName = PossibleCommandName.TransferMoney;
-                    break;
-                case PossibleCommandName.ShowMoneyInAccount:
-                    _commandName = PossibleCommandName.ShowMoneyInAccount;
-                    break;
-                case PossibleCommandName.ShowIDsOfBanks:
-                    _commandName = PossibleCommandName.ShowIDsOfBanks;
-                    break;
-                case PossibleCommandName.ShowIDsOfClients:
-                    _commandName = PossibleCommandName.ShowIDsOfClients;
-                    break;
-                case PossibleCommandName.AddClientToBankWithDebitAccount:
-                    _commandName = PossibleCommandName.AddClientToBankWithDebitAccount;
-                    break;
-                case PossibleCommandName.AddClientToBankWithCreditAccount:
-                    _commandName = PossibleCommandName.AddClientToBankWithCreditAccount;
-                    break;
-                case PossibleCommandName.SimulateInTime:
-                    _commandName = PossibleCommandName.SimulateInTime;
-                    break;
-                default:
-                    throw new ArgumentException("Invalid command");
             }
         }
 

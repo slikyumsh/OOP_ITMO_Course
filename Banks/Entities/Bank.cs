@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Net;
 using Banks.Interfaces;
 
 namespace Banks.Entities
@@ -12,11 +14,13 @@ namespace Banks.Entities
         private readonly string _name;
         private readonly double _limitForNotConfirmedClients;
         private readonly CorrespondentAccount _correspondentAccount;
+        private readonly List<Client> _clients;
+        private readonly List<ISubscriber> _observers;
+        private readonly List<IAccount> _accounts;
+        private readonly List<Transaction> _allTransactions;
+        private readonly List<Transaction> _canceledTransaions;
         private double _procent;
         private double _comission;
-        private List<Client> _clients;
-        private List<ISubscriber> _observers;
-        private List<IAccount> _accounts;
 
         public Bank(string name, int percent, int commission, int limitForNotConfirmedClients, CorrespondentAccount correspondentAccount)
         {
@@ -28,6 +32,8 @@ namespace Banks.Entities
             _clients = new List<Client>();
             _observers = new List<ISubscriber>();
             _accounts = new List<IAccount>();
+            _allTransactions = new List<Transaction>();
+            _canceledTransaions = new List<Transaction>();
             _correspondentAccount = correspondentAccount;
         }
 
@@ -69,13 +75,9 @@ namespace Banks.Entities
             ISubscriber desiredClient = _observers.SingleOrDefault(desiredClient => desiredClient.Id == client.Id);
             if (desiredClient != null)
                 throw new ArgumentException("This client has already observed");
-            foreach (IAccount account in _accounts)
+            foreach (IAccount account in _accounts.Where(client.DoesThisAccountBelongToThisClient))
             {
-                if (client.DoesThisAccountBelongToThisClient(account))
-                {
-                    _observers.Add(client);
-                    return;
-                }
+                _observers.Add(client);
             }
 
             throw new ArgumentException("Client hasn't any accounts in this bank");
@@ -115,15 +117,24 @@ namespace Banks.Entities
             transactionBankAndAccount1.TransferMoney();
             var transactionBankAndAccount2 = new Transaction(_correspondentAccount, recipient, money);
             transactionBankAndAccount2.TransferMoney();
+            _allTransactions.Add(transactionBankAndAccount1);
+            _allTransactions.Add(transactionBankAndAccount2);
         }
 
         public void CancelTransferWithinOneBank(Transaction transaction)
         {
+            if (_canceledTransaions.Any(item => item == transaction))
+                throw new DuplicateNameException("This transaction has been already canceled.");
+
             transaction.ReverseTransaction();
             var transactionBankAndAccount1 = new Transaction(transaction.Sender, _correspondentAccount, transaction.Money);
             transactionBankAndAccount1.TransferMoney();
             var transactionBankAndAccount2 = new Transaction(_correspondentAccount, transaction.Recipient, transaction.Money);
             transactionBankAndAccount2.TransferMoney();
+            _allTransactions.Add(transactionBankAndAccount1);
+            _allTransactions.Add(transactionBankAndAccount2);
+            _canceledTransaions.Add(transactionBankAndAccount1);
+            _canceledTransaions.Add(transactionBankAndAccount2);
         }
 
         public void ChangePercent(double percent, Message message)
