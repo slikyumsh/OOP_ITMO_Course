@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net;
 using Banks.Interfaces;
 
 namespace Banks.Entities

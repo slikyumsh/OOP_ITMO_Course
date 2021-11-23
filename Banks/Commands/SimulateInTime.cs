@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Banks.Entities;
 using Banks.Interfaces;
 
