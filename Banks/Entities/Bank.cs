@@ -109,6 +109,20 @@ namespace Banks.Entities
             return _clients.Where(client => client.DoesThisAccountBelongToThisClient(account)).Any(client => !string.IsNullOrEmpty(client.Address) && !string.IsNullOrEmpty(client.Passport));
         }
 
+        public Client AccountOwner(IAccount account)
+        {
+            if (account == null)
+                throw new ArgumentException("Account is null");
+            IAccount desiredAccount = _accounts.SingleOrDefault(desiredAccount => desiredAccount.Id == account.Id);
+            if (desiredAccount == null)
+                throw new ArgumentException("We haven't this account");
+            Client desiredClient =
+                _clients.SingleOrDefault(desiredClient => desiredClient.DoesThisAccountBelongToThisClient(account));
+            if (desiredClient == null)
+                throw new ArgumentException("Nobody has not this account");
+            return desiredClient;
+        }
+
         public void MakeTransferWithinOneBank(IAccount sender, IAccount recipient, double money)
         {
             if ((!AccountOwnerVerification(sender) || !AccountOwnerVerification(recipient)) && money > _limitForNotConfirmedClients)
@@ -184,18 +198,21 @@ namespace Banks.Entities
 
         public void PayPercents(Message message)
         {
-            NotifyObservers(message);
             foreach (IAccount account in _accounts)
             {
                 if (AccountOwnerVerification(account))
                 {
+                    Client client = AccountOwner(account);
+                    ISubscriber desiredClient = _observers.SingleOrDefault(desiredClient => desiredClient.Id == client.Id);
                     switch (account)
                     {
                         case DepositeAccount depositeAccount:
                             depositeAccount.PayPercent();
+                            SendMessage(message, client);
                             break;
                         case DebitAccount debitAccount:
                             debitAccount.PayPercent();
+                            SendMessage(message, client);
                             break;
                     }
                 }
@@ -204,13 +221,15 @@ namespace Banks.Entities
 
         public void CommissionWriteOff(Message message)
         {
-            NotifyObservers(message);
             foreach (IAccount account in _accounts)
             {
+                Client client = AccountOwner(account);
+                ISubscriber desiredClient = _observers.SingleOrDefault(desiredClient => desiredClient.Id == client.Id);
                 switch (account)
                     {
                         case CreditAccount creditAccount:
                             creditAccount.CommissionWriteOff();
+                            SendMessage(message, client);
                             break;
                     }
             }
