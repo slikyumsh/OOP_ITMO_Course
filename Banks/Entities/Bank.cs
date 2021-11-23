@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Banks.Interfaces;
 
-namespace Banks
+namespace Banks.Entities
 {
     public class Bank : IObservable
     {
@@ -14,7 +15,7 @@ namespace Banks
         private double _procent;
         private double _comission;
         private List<Client> _clients;
-        private List<Client> _observers;
+        private List<ISubscriber> _observers;
         private List<IAccount> _accounts;
 
         public Bank(string name, int percent, int commission, int limitForNotConfirmedClients, CorrespondentAccount correspondentAccount)
@@ -25,7 +26,7 @@ namespace Banks
             _comission = commission;
             _limitForNotConfirmedClients = limitForNotConfirmedClients;
             _clients = new List<Client>();
-            _observers = new List<Client>();
+            _observers = new List<ISubscriber>();
             _accounts = new List<IAccount>();
             _correspondentAccount = correspondentAccount;
         }
@@ -42,6 +43,8 @@ namespace Banks
                 throw new ArgumentException("Null message");
             if (client is null)
                 throw new ArgumentException("Null client");
+
+            client.GetUpdates(message);
         }
 
         public Client AddClient(Client client, IAccount account)
@@ -63,7 +66,7 @@ namespace Banks
 
         public void AddObserver(Client client)
         {
-            Client desiredClient = _observers.SingleOrDefault(desiredClient => desiredClient.Id == client.Id);
+            ISubscriber desiredClient = _observers.SingleOrDefault(desiredClient => desiredClient.Id == client.Id);
             if (desiredClient != null)
                 throw new ArgumentException("This client has already observed");
             foreach (IAccount account in _accounts)
@@ -80,7 +83,7 @@ namespace Banks
 
         public void RemoveObserver(Client client)
         {
-            Client desiredClient = _observers.SingleOrDefault(desiredClient => desiredClient.Id == client.Id);
+            ISubscriber desiredClient = _observers.SingleOrDefault(desiredClient => desiredClient.Id == client.Id);
             if (desiredClient == null)
                 throw new ArgumentException("This client hasn't observed");
             _observers.Remove(client);
@@ -101,25 +104,16 @@ namespace Banks
             IAccount desiredAccount = _accounts.SingleOrDefault(desiredAccount => desiredAccount.Id == account.Id);
             if (desiredAccount == null)
                 throw new ArgumentException("We haven't this account");
-            foreach (Client client in _clients)
-            {
-                if (client.DoesThisAccountBelongToThisClient(account))
-                {
-                    if (client.Address != null && client.Passport != null)
-                        return true;
-                }
-            }
-
-            return false;
+            return _clients.Where(client => client.DoesThisAccountBelongToThisClient(account)).Any(client => !string.IsNullOrEmpty(client.Address) && !string.IsNullOrEmpty(client.Passport));
         }
 
-        public void MakeTransferWithinOneBank(IAccount account1, IAccount account2, double money)
+        public void MakeTransferWithinOneBank(IAccount sender, IAccount recipient, double money)
         {
-            if ((!AccountOwnerVerification(account1) || !AccountOwnerVerification(account2)) && money > _limitForNotConfirmedClients)
+            if ((!AccountOwnerVerification(sender) || !AccountOwnerVerification(recipient)) && money > _limitForNotConfirmedClients)
                 throw new ArgumentException("Bank transfer denied due to suspicion of fraud1");
-            var transactionBankAndAccount1 = new Transaction(account1, _correspondentAccount, money);
+            var transactionBankAndAccount1 = new Transaction(sender, _correspondentAccount, money);
             transactionBankAndAccount1.TransferMoney();
-            var transactionBankAndAccount2 = new Transaction(_correspondentAccount, account2, money);
+            var transactionBankAndAccount2 = new Transaction(_correspondentAccount, recipient, money);
             transactionBankAndAccount2.TransferMoney();
         }
 

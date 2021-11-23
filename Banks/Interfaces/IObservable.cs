@@ -1,4 +1,6 @@
-﻿namespace Banks
+﻿using Banks.Entities;
+
+namespace Banks.Interfaces
 {
     public interface IObservable
     {

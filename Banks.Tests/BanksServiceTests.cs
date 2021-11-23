@@ -1,4 +1,7 @@
 ﻿using System;
+using Banks.Entities;
+using Banks.Interfaces;
+using Banks.Tools;
 using NUnit.Framework;
 
 namespace Banks.Tests

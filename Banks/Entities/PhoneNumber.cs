@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Banks
+namespace Banks.Entities
 {
     public class PhoneNumber
     {

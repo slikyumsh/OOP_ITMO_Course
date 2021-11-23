@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Banks
+namespace Banks.Interfaces
 {
     public interface IAccount
     {

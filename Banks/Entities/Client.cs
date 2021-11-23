@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Banks.Interfaces;
 
-namespace Banks
+namespace Banks.Entities
 {
-    public class Client
+    public class Client : ISubscriber
     {
         private int _id;
         private string _name;
@@ -39,7 +40,8 @@ namespace Banks
             IAccount desiredAccount = _accounts.SingleOrDefault(desiredAccount => desiredAccount.Id == account.Id);
             if (desiredAccount != null)
                 throw new ArgumentException("This client already has this account");
-            IAccount desiredInBankAccount = bank.Accounts.SingleOrDefault(desiredInBankAccount => desiredInBankAccount.Id == account.Id);
+            IAccount desiredInBankAccount =
+                bank.Accounts.SingleOrDefault(desiredInBankAccount => desiredInBankAccount.Id == account.Id);
             if (desiredInBankAccount != null)
                 throw new ArgumentException("This bank already has this account");
             if (account is CorrespondentAccount)
@@ -54,6 +56,10 @@ namespace Banks
                 throw new ArgumentException("Null bank account");
             IAccount desiredAccount = _accounts.SingleOrDefault(desiredAccount => desiredAccount.Id == account.Id);
             return desiredAccount != null;
+        }
+
+        public void GetUpdates(Message message)
+        {
         }
     }
 }

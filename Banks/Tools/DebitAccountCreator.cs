@@ -1,6 +1,8 @@
 ﻿using System;
+using Banks.Entities;
+using Banks.Interfaces;
 
-namespace Banks
+namespace Banks.Tools
 {
     public class DebitAccountCreator : IAccountCreator
     {

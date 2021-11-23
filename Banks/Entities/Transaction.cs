@@ -1,6 +1,7 @@
 ﻿using System;
+using Banks.Interfaces;
 
-namespace Banks
+namespace Banks.Entities
 {
     public class Transaction
     {

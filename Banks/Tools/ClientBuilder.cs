@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+using Banks.Entities;
 
-namespace Banks
+namespace Banks.Tools
 {
     public class ClientBuilder
     {

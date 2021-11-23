@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Banks.Interfaces;
 
-namespace Banks
+namespace Banks.Entities
 {
     public class CenterBank
     {
@@ -83,46 +84,46 @@ namespace Banks
             bank.ChangeCommission(newCommission, message);
         }
 
-        public void BankTransfersMoney(Bank bank1, Bank bank2, double money)
+        public void BankTransfersMoney(Bank sender, Bank recipient, double money)
         {
-            var transaction = new Transaction(bank1.CorrespondentAccount, bank2.CorrespondentAccount, money);
+            var transaction = new Transaction(sender.CorrespondentAccount, recipient.CorrespondentAccount, money);
             transaction.TransferMoney();
         }
 
-        public void TransferMoney(IAccount account1, IAccount account2, double money)
+        public void TransferMoney(IAccount sender, IAccount recipient, double money)
         {
-            if (account1 == null || account2 == null)
+            if (sender == null || recipient == null)
                 throw new ArgumentException("One client is null");
-            if (account1 is CorrespondentAccount && account2 is CorrespondentAccount)
+            if (sender is CorrespondentAccount && recipient is CorrespondentAccount)
             {
                 Bank desiredBank1 =
-                    _banks.SingleOrDefault(desiredBank1 => desiredBank1.CorrespondentAccount.Id == account1.Id);
+                    _banks.SingleOrDefault(desiredBank1 => desiredBank1.CorrespondentAccount.Id == sender.Id);
                 Bank desiredBank2 =
-                    _banks.SingleOrDefault(desiredBank2 => desiredBank2.CorrespondentAccount.Id == account2.Id);
+                    _banks.SingleOrDefault(desiredBank2 => desiredBank2.CorrespondentAccount.Id == recipient.Id);
                 if (desiredBank1 == null || desiredBank2 == null)
                     throw new ArgumentException("There is no bank, that contains this account");
                 BankTransfersMoney(desiredBank1, desiredBank2, money);
                 return;
             }
 
-            Bank desiredBank3 = _banks.SingleOrDefault(desiredBank3 => desiredBank3.IsTheUserAccountBelongsThisBank(account1));
+            Bank desiredBank3 = _banks.SingleOrDefault(desiredBank3 => desiredBank3.IsTheUserAccountBelongsThisBank(sender));
             if (desiredBank3 == null)
                 throw new ArgumentException("There is no bank, that contains this account");
-            Bank desiredBank4 = _banks.SingleOrDefault(desiredBank4 => desiredBank4.IsTheUserAccountBelongsThisBank(account2));
+            Bank desiredBank4 = _banks.SingleOrDefault(desiredBank4 => desiredBank4.IsTheUserAccountBelongsThisBank(recipient));
             if (desiredBank4 == null)
                 throw new ArgumentException("There is no bank, that contains this account");
             if (desiredBank3.Id == desiredBank4.Id)
             {
-                desiredBank3.MakeTransferWithinOneBank(account1, account2, money);
+                desiredBank3.MakeTransferWithinOneBank(sender, recipient, money);
                 return;
             }
 
             var transactionBankAndAccount1 =
-                new Transaction(account1, desiredBank3.CorrespondentAccount, money);
+                new Transaction(sender, desiredBank3.CorrespondentAccount, money);
             transactionBankAndAccount1.TransferMoney();
             BankTransfersMoney(desiredBank3, desiredBank4, money);
             var transactionBankAndAccount2 =
-                new Transaction(desiredBank4.CorrespondentAccount, account2, money);
+                new Transaction(desiredBank4.CorrespondentAccount, recipient, money);
             transactionBankAndAccount2.TransferMoney();
         }
 
