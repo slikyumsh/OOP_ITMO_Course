@@ -22,14 +22,14 @@ namespace Banks.Commands
             switch (_parser.Arguments.Count)
             {
                 case 2:
-                    var builder1 = new ClientBuilder();
+                    var builder1 = new ClientBuilder(new ConsoleLogger());
                     builder1.AddName(_parser.Arguments[0]);
                     builder1.AddSurname(_parser.Arguments[1]);
                     Client client1 = builder1.Build();
                     _centerBank.AddClient(client1);
                     break;
                 case 3:
-                    var clientBuilder = new ClientBuilder();
+                    var clientBuilder = new ClientBuilder(new ConsoleLogger());
                     clientBuilder.AddName(_parser.Arguments[0]);
                     clientBuilder.AddSurname(_parser.Arguments[1]);
                     clientBuilder.AddAddress(_parser.Arguments[2]);
@@ -37,7 +37,7 @@ namespace Banks.Commands
                     _centerBank.AddClient(client2);
                     break;
                 case 4:
-                    var builder2 = new ClientBuilder();
+                    var builder2 = new ClientBuilder(new ConsoleLogger());
                     builder2.AddName(_parser.Arguments[0]);
                     builder2.AddSurname(_parser.Arguments[1]);
                     builder2.AddAddress(_parser.Arguments[2]);

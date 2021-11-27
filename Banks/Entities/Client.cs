@@ -14,8 +14,9 @@ namespace Banks.Entities
         private string _passport;
         private PhoneNumber _phone;
         private List<IAccount> _accounts;
+        private ILogger _logger;
 
-        public Client(string name, string surname, string address, string passport, PhoneNumber phone, int id)
+        public Client(string name, string surname, string address, string passport, PhoneNumber phone, int id, ILogger logger)
         {
             _name = name;
             _surname = surname;
@@ -24,6 +25,7 @@ namespace Banks.Entities
             _phone = phone;
             _id = id;
             _accounts = new List<IAccount>();
+            _logger = logger;
         }
 
         public int Id => _id;
@@ -60,6 +62,7 @@ namespace Banks.Entities
 
         public void GetUpdates(Message message)
         {
+            _logger.SendMessage(message);
         }
     }
 }

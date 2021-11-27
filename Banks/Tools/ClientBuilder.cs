@@ -1,17 +1,24 @@
 ﻿using System;
 using Banks.Entities;
+using Banks.Interfaces;
 
 namespace Banks.Tools
 {
     public class ClientBuilder
     {
         private static int _currentClientId = 0;
+        private readonly ILogger _logger;
         private int _id;
         private string _name;
         private string _surname;
         private string _address;
         private string _passport;
         private PhoneNumber _phone;
+
+        public ClientBuilder(ILogger logger)
+        {
+            _logger = logger ?? throw new ArgumentException("Invalid logger");
+        }
 
         public ClientBuilder AddName(string name)
         {
@@ -56,7 +63,7 @@ namespace Banks.Tools
         public Client Build()
         {
             _id = _currentClientId++;
-            return new Client(_name, _surname, _address, _passport, _phone, _id);
+            return new Client(_name, _surname, _address, _passport, _phone, _id, _logger);
         }
     }
 }
