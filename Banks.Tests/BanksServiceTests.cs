@@ -9,10 +9,12 @@ namespace Banks.Tests
     public class BanksServiceTests
     {
         private CenterBank _centerBank;
+        private ILogger _logger;
         [SetUp]
         public void Setup()
         {
             _centerBank = new CenterBank();
+            _logger = new ConsoleLogger();
         }
 
         [Test]
@@ -20,7 +22,7 @@ namespace Banks.Tests
         {
             var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            var builder = new ClientBuilder();
+            var builder = new ClientBuilder(new ConsoleLogger());
             builder.AddName("DIMA");
             builder.AddSurname("DIMA");
             builder.AddAddress("DIMA");
@@ -42,7 +44,7 @@ namespace Banks.Tests
         {
             var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            var builder = new ClientBuilder();
+            var builder = new ClientBuilder(new ConsoleLogger());
             builder.AddName("DIMA");
             builder.AddSurname("DIMA");
             builder.AddAddress("DIMA");
@@ -63,7 +65,7 @@ namespace Banks.Tests
         {
             var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            var builder = new ClientBuilder();
+            var builder = new ClientBuilder(new ConsoleLogger());
             builder.AddName("DIMA");
             builder.AddSurname("DIMA");
             builder.AddAddress("DIMA");
@@ -83,7 +85,7 @@ namespace Banks.Tests
         {
             var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            var builder = new ClientBuilder();
+            var builder = new ClientBuilder(new ConsoleLogger());
             builder.AddName("DIMA");
             builder.AddSurname("DIMA");
             builder.AddAddress("DIMA");
@@ -115,7 +117,7 @@ namespace Banks.Tests
         {
             var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
-            var builder1 = new ClientBuilder();
+            var builder1 = new ClientBuilder(new ConsoleLogger());
             builder1.AddName("DIMA");
             builder1.AddSurname("DIMA");
             builder1.AddAddress("DIMA");
@@ -127,7 +129,7 @@ namespace Banks.Tests
             client1.OpenNewAccount(bank, account1);
             _centerBank.AddClient(client1);
 
-            var builder2 = new ClientBuilder();
+            var builder2 = new ClientBuilder(new ConsoleLogger());
             builder2.AddName("DIMA");
             builder2.AddSurname("DIMA");
             builder2.AddAddress("DIMA");
@@ -151,7 +153,7 @@ namespace Banks.Tests
             _centerBank.AddBank(bank);
             var bank1 = new Bank("Sber", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank1);
-            var builder1 = new ClientBuilder();
+            var builder1 = new ClientBuilder(new ConsoleLogger());
             builder1.AddName("DIMA");
             builder1.AddSurname("DIMA");
             builder1.AddAddress("DIMA");
@@ -162,7 +164,7 @@ namespace Banks.Tests
             var account1 = account0 as DebitAccount;
             client1.OpenNewAccount(bank, account1);
             _centerBank.AddClient(client1);
-            var builder2 = new ClientBuilder();
+            var builder2 = new ClientBuilder(new ConsoleLogger());
             builder2.AddName("DIMA");
             builder2.AddSurname("DIMA");
             builder2.AddAddress("DIMA");
@@ -186,7 +188,7 @@ namespace Banks.Tests
             _centerBank.AddBank(bank);
             var bank1 = new Bank("Sber", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank1);
-            var builder1 = new ClientBuilder();
+            var builder1 = new ClientBuilder(new ConsoleLogger());
             builder1.AddName("DIMA");
             builder1.AddSurname("DIMA");
             builder1.AddAddress("DIMA");
@@ -197,7 +199,7 @@ namespace Banks.Tests
             var account1 = account0 as DebitAccount;
             client1.OpenNewAccount(bank, account1);
             _centerBank.AddClient(client1);
-            var builder2 = new ClientBuilder();
+            var builder2 = new ClientBuilder(new ConsoleLogger());
             builder2.AddName("DIMA");
             builder2.AddSurname("DIMA");
             builder2.AddAddress("DIMA");
@@ -223,7 +225,7 @@ namespace Banks.Tests
             var bank = new Bank("Tinkoff", 10, 10, 10000, new CorrespondentAccount(10000000));
             _centerBank.AddBank(bank);
            
-            var builder1 = new ClientBuilder();
+            var builder1 = new ClientBuilder(new ConsoleLogger());
             builder1.AddName("DIMA");
             builder1.AddSurname("DIMA");
             builder1.AddAddress("DIMA");
