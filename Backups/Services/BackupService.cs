@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace Backups
 {
-    public class BackupService
+    public class BackupExtraService
     {
         private IAlgorithm _algorithm;
         private IRepository _repository;
         private List<JobObject> _jobObjects;
 
-        public BackupService(IAlgorithm algorithm, IRepository repository)
+        public BackupExtraService(IAlgorithm algorithm, IRepository repository)
         {
             _algorithm = algorithm;
             _repository = repository;
