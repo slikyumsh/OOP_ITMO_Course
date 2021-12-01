@@ -14,5 +14,10 @@ namespace Backups
         }
 
         public string Path => _filePath;
+
+        public override string ToString()
+        {
+            return DateTime.Now + _filePath;
+        }
     }
 }

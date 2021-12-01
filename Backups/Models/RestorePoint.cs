@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Backups
 {
+    [Serializable]
     public class RestorePoint
     {
+        [JsonProperty("nameRestorePoint")]
         private string _name;
         private List<FileInfo> _files;
 
@@ -26,6 +29,18 @@ namespace Backups
             if (desiredString != null)
                 throw new ArgumentException("We have already added this file");
             _files.Add(file);
+        }
+
+        public override string ToString()
+        {
+            string toString = DateTime.Now + _name + " ";
+            foreach (FileInfo file in _files)
+            {
+                toString += file.Name;
+                toString += " ";
+            }
+
+            return toString;
         }
     }
 }

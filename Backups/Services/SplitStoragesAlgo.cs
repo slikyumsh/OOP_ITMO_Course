@@ -13,8 +13,8 @@ namespace Backups
 
         public SplitStoragesAlgo()
         {
-            _rootPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                        "/Backups/BackupWorkFiles";
+            _rootPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName +
+                        "/BackupWorkFiles";
         }
 
         public RestorePoint MakePoint(List<JobObject> list)
@@ -36,6 +36,11 @@ namespace Backups
             }
 
             return restorePoint;
+        }
+
+        public override string ToString()
+        {
+            return "SplitStorages";
         }
     }
 }
