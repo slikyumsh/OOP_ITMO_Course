@@ -2,6 +2,6 @@
 {
     public interface ICleaner
     {
-        void Clear();
+        void ClearPoints();
     }
 }

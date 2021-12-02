@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace BackupsExtra
@@ -19,13 +20,19 @@ namespace BackupsExtra
             _backupJobs = backupJobs;
         }
 
-        public void Clear()
+        public void ClearPoints()
         {
             foreach (BackupJob backupJob in _backupJobs)
             {
-                if (backupJob.Repository.NumberOfRestorePoints >= _number)
+                if (backupJob.Repository.NumberOfRestorePoints > _number)
                 {
-                    _backupJobs.Remove(backupJob);
+                    DirectoryInfo directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
+                    DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
+                    for (int i = 0; i < subDirectoriesInfo.Length - _number; i++)
+                    {
+                        Directory.Delete(subDirectoriesInfo[i].FullName, true);
+                        backupJob.Repository.RestorePoints.Remove(backupJob.Repository.RestorePoints[i]);
+                    }
                 }
             }
 

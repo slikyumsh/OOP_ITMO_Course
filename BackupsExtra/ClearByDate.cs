@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace BackupsExtra
 {
-    public class ClearBeforeDate : ICleaner
+    public class ClearByDate : ICleaner
     {
         private DateTime _time;
         private List<BackupJob> _backupJobs;
 
-        public ClearBeforeDate(DateTime time, List<BackupJob> backupJobs)
+        public ClearByDate(DateTime time, List<BackupJob> backupJobs)
         {
             _time = time;
             _backupJobs = backupJobs ?? throw new ArgumentException("Invalid argument");
@@ -20,14 +20,14 @@ namespace BackupsExtra
         {
             foreach (BackupJob backupJob in _backupJobs)
             {
-                for (int i = 0; i < backupJob.Repository.NumberOfRestorePoints; i++)
+                DirectoryInfo directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
+                DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
+                for (int i = 0; i < subDirectoriesInfo.Length; i++)
                 {
-                    DateTime creationTime =
-                        Directory.GetCreationTime(
-                            backupJob.Repository.Path + "\\RestorePoint" + Convert.ToString(i + 1));
+                    DateTime creationTime = Directory.GetCreationTime(subDirectoriesInfo[i].FullName);
                     if (creationTime < _time)
                     {
-                        Directory.Delete(backupJob.Repository.Path + "\\RestorePoint" + Convert.ToString(i + 1), true);
+                        Directory.Delete(subDirectoriesInfo[i].FullName, true);
                         backupJob.Repository.RestorePoints.Remove(backupJob.Repository.RestorePoints[i]);
                     }
                 }

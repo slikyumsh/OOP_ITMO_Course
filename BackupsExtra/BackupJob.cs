@@ -18,35 +18,14 @@ namespace BackupsExtra
         private DateTime _dateOfBirth;
         [JsonProperty("id")]
         private int _id;
-        private ILogger _logger;
-        public BackupJob(IAlgorithm algorithm, IRepository repository, ILogger logger)
+        public BackupJob(IAlgorithm algorithm, IRepository repository)
             : base(algorithm, repository)
         {
-            _logger = logger;
             _dateOfBirth = DateTime.Now;
             _id = _idCounter++;
         }
 
         public int Id => _id;
         public DateTime DateOfBirth => _dateOfBirth;
-
-        public RestorePoint MakePointWithNotice()
-        {
-            RestorePoint restorePoint = MakePoint();
-            _logger.SendMessage("MadeRestorePoint" + restorePoint);
-            return restorePoint;
-        }
-
-        public void AddJobObjectWithNotice(JobObject jobObject)
-        {
-            AddJobObject(jobObject);
-            _logger.SendMessage("AddedJobObject" + jobObject);
-        }
-
-        public void DeleteJobObjectWithNotice(JobObject jobObject)
-        {
-            DeleteJobObject(jobObject);
-            _logger.SendMessage("DeletedJobObject" + jobObject);
-        }
     }
 }
