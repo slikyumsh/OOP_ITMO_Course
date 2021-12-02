@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Backups;
 using NUnit.Framework;
 
@@ -20,17 +21,16 @@ namespace BackupsExtra.Tests
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/BackupsExtra/BackupWorkFiles/");
-            BackupExtraService service = new BackupExtraService(new ConsoleLogger());
-            Assert.AreEqual(0,service.TestNumberOfDownloadedBackupJobs());
+            var service = new BackupExtraService(new ConsoleLogger(), 3);
+            Assert.AreEqual(0,service.NumberOfDownloadedBackupJobs);
             service.Download();
-            int x = service.TestNumberOfDownloadedBackupJobs();
+            int x = service.NumberOfDownloadedBackupJobs;
             BackupJob job = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra/BackupWorkFiles/"), new ConsoleLogger());
             service.Save();
-            int y = service.TestNumberOfDownloadedBackupJobs();
+            int y = service.NumberOfDownloadedBackupJobs;
             Assert.AreEqual(1, y - x);
             Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra/WorkFiles/", true);
             Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra/BackupWorkFiles/", true);
-
         }
 
         [Test]
@@ -54,11 +54,11 @@ namespace BackupsExtra.Tests
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/BackupsExtra.Tests/BackupWorkFiles/");
-            BackupExtraService service = new BackupExtraService(new ConsoleLogger());
+            var service = new BackupExtraService(new ConsoleLogger(), 3);
             BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
-            JobObject x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
-            JobObject y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
-            JobObject z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
+            var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
+            var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
+            var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
             service.AddJobObject(x, a);
             service.AddJobObject(y, a);
             RestorePoint c = service.CreateRestorePoint(a);
@@ -98,11 +98,11 @@ namespace BackupsExtra.Tests
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/BackupsExtra.Tests/BackupWorkFiles/");
-            BackupExtraService service = new BackupExtraService(new ConsoleLogger());
+            var service = new BackupExtraService(new ConsoleLogger(), 3);
             BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
-            JobObject x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
-            JobObject y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
-            JobObject z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
+            var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
+            var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
+            var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
             service.AddJobObject(x, a);
             service.AddJobObject(y, a);
             RestorePoint c = service.CreateRestorePoint(a);
@@ -136,11 +136,11 @@ namespace BackupsExtra.Tests
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/BackupsExtra.Tests/BackupWorkFiles/");
-            BackupExtraService service = new BackupExtraService(new ConsoleLogger());
+            var service = new BackupExtraService(new ConsoleLogger(), 3);
             BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
-            JobObject x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
-            JobObject y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
-            JobObject z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
+            var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
+            var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
+            var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
             service.AddJobObject(x, a);
             service.AddJobObject(y, a);
             RestorePoint c = service.CreateRestorePoint(a);
@@ -174,11 +174,11 @@ namespace BackupsExtra.Tests
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/BackupsExtra.Tests/BackupWorkFiles/");
-            BackupExtraService service = new BackupExtraService(new ConsoleLogger());
+            var service = new BackupExtraService(new ConsoleLogger(), 3);
             BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
-            JobObject x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
-            JobObject y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
-            JobObject z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
+            var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
+            var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
+            var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
             service.AddJobObject(x, a);
             service.AddJobObject(y, a);
             RestorePoint c = service.CreateRestorePoint(a);
@@ -212,11 +212,11 @@ namespace BackupsExtra.Tests
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/BackupsExtra.Tests/BackupWorkFiles/");
-            BackupExtraService service = new BackupExtraService(new ConsoleLogger());
+            var service = new BackupExtraService(new ConsoleLogger(), 3);
             BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
-            JobObject x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
-            JobObject y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
-            JobObject z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
+            var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
+            var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
+            var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
             service.AddJobObject(x, a);
             service.AddJobObject(y, a);
             RestorePoint c = service.CreateRestorePoint(a);
