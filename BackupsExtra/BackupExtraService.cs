@@ -15,20 +15,26 @@ namespace BackupsExtra
     public class BackupExtraService
     {
         private string _path;
+        private int _limitForRestorePointsAtOneBackupJob;
         private List<BackupJob> _backupJobs;
         private string _pathToConfig;
         private ILogger _logger;
 
-        public BackupExtraService(ILogger logger)
+        public BackupExtraService(ILogger logger, int numberPoints)
         {
             if (logger is null)
                 throw new ArgumentException("Null logger");
+            if (numberPoints <= 0)
+                throw new ArgumentException("Limit of restore point per one BackupJob must be positive");
+            _limitForRestorePointsAtOneBackupJob = numberPoints;
             _backupJobs = new List<BackupJob>();
             _pathToConfig = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\BackupsExtra";
             _logger = logger;
+            _path = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\WorkFiles";
         }
 
         public List<BackupJob> BackupJobs => _backupJobs;
+        public int NumberOfDownloadedBackupJobs => _backupJobs.Count;
         public BackupJob CreateBackupJob(IAlgorithm algorithm, IRepository repository, ILogger logger)
         {
             if (algorithm is null)
@@ -64,6 +70,8 @@ namespace BackupsExtra
             if (desiredBackup is null)
                 throw new ArgumentException("This BackupJob is not contained by list<BackupJob>");
             RestorePoint restorePoint = backupJob.MakePoint();
+            if (backupJob.Repository.RestorePoints.Count == _limitForRestorePointsAtOneBackupJob)
+                MergeRestorePoints(backupJob.Repository.Path + "\\RestorePoint1", backupJob.Repository.Path + "\\RestorePoint2");
             _logger.SendMessage("Created RestorePoint");
             return restorePoint;
         }
@@ -107,18 +115,16 @@ namespace BackupsExtra
             _logger.SendMessage("Saved to Json");
         }
 
-        public int TestNumberOfDownloadedBackupJobs()
-        {
-            return _backupJobs.Count;
-        }
-
         public void RestoreFilesFromPoint(string pathFromRestore, string pathToRestore)
         {
             if (string.IsNullOrEmpty(pathToRestore))
                 throw new ArgumentException("Empty path");
             if (string.IsNullOrEmpty(pathFromRestore))
                 throw new ArgumentException("Empty path");
-
+            if (!Directory.Exists(pathFromRestore))
+                throw new ArgumentException("Invalid path to RestorePoint");
+            if (!Directory.Exists(pathToRestore))
+                throw new ArgumentException("Invalid path to RestorePoint");
             var backupDirectoryInfo = new DirectoryInfo(pathFromRestore);
             FileInfo[] filesWithBackup = backupDirectoryInfo.GetFiles();
             foreach (FileInfo fileInfo in filesWithBackup)
@@ -135,42 +141,115 @@ namespace BackupsExtra
             _logger.SendMessage("Restored Files From RestorePoint");
         }
 
-        public void RestoreFilesFromRestorePoint(RestorePoint restorePoint, string pathToRestore)
-        {
-            if (string.IsNullOrEmpty(pathToRestore))
-                throw new ArgumentException("Empty path");
-            if (restorePoint is null)
-                throw new ArgumentException("Empty restorePoint");
-
-            Console.WriteLine(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName + "\\BackupWorkFiles");
-            BackupJob backup =
-                _backupJobs.SingleOrDefault(backup => backup.Repository.RestorePoints.Contains(restorePoint));
-            if (backup is null)
-                throw new ArgumentException("Can't find backup that contains this restore point");
-            string path = backup.Repository.Path;
-            string[] directories = Directory.GetDirectories(path);
-            foreach (var directory in directories)
-            {
-                var dir = new DirectoryInfo(directory);
-                FileInfo[] files = dir.GetFiles();
-                foreach (var file in files)
-                {
-                    Console.WriteLine(file);
-                    ZipFile.ExtractToDirectory(directory + "\\" + file.Name, directory);
-                }
-
-                string[] f = Directory.GetFiles(directory);
-                Console.WriteLine(f.Length);
-            }
-
-            _logger.SendMessage("Restored Files From RestorePoint");
-        }
-
         public void Clear(ICleaner cleaner)
         {
             if (cleaner is null)
                 throw new ArgumentException("Null cleaner");
             cleaner.ClearPoints();
+            _logger.SendMessage("Cleaned!");
+        }
+
+        private void MergeRestorePoints(string oldRestorePointPath, string newRestorePointPath)
+        {
+            if (string.IsNullOrWhiteSpace(oldRestorePointPath))
+                throw new ArgumentException("Invalid path");
+            if (string.IsNullOrWhiteSpace(newRestorePointPath))
+                throw new ArgumentException("Invalid path");
+            if (!Directory.Exists(oldRestorePointPath))
+                throw new ArgumentException("Invalid path to RestorePoint");
+            if (!Directory.Exists(newRestorePointPath))
+                throw new ArgumentException("Invalid path to RestorePoint!!!");
+            BackupJob backupJob1 = FindBackupJobForRestorePoint(oldRestorePointPath);
+            BackupJob backupJob2 = FindBackupJobForRestorePoint(newRestorePointPath);
+
+            if (backupJob1 is null)
+                throw new ArgumentException("Can't find backup that contains this restore point");
+            if (backupJob2 is null)
+                throw new ArgumentException("Can't find backup that contains this restore point1");
+            if (backupJob1.Id != backupJob2.Id)
+                throw new ArgumentException("These points lay in different directories");
+            if (backupJob1.Algorithm.ToString() == "SingleStorage")
+            {
+                Directory.Delete(oldRestorePointPath, true);
+                backupJob1.Repository.RestorePoints.Remove(new RestorePoint(oldRestorePointPath));
+            }
+            else
+            {
+                string[] filesOld = Directory.GetFiles(oldRestorePointPath);
+                string[] filesNew = Directory.GetFiles(newRestorePointPath);
+                var fileInfoOld = new List<FileInfo>();
+                var fileInfoNew = new List<FileInfo>();
+                var filesOldList = new List<string>();
+                var filesNewList = new List<string>();
+                var filesToChange = new List<FileInfo>();
+                var filesToDelete = new List<FileInfo>();
+                foreach (var file in filesNew)
+                {
+                    var newFileInfo = new FileInfo(file);
+                    fileInfoNew.Add(newFileInfo);
+                    filesNewList.Add(newFileInfo.Name);
+                }
+
+                foreach (string file in filesOld)
+                {
+                    var newFileInfo = new FileInfo(file);
+                    fileInfoOld.Add(newFileInfo);
+                    filesOldList.Add(newFileInfo.Name);
+                }
+
+                foreach (string file in filesOldList)
+                {
+                    if (filesNewList.Contains(file))
+                    {
+                        FileInfo desiredFileInfo =
+                            fileInfoOld.SingleOrDefault(desiredFileInfo => desiredFileInfo.Name == file);
+                        if (desiredFileInfo is null)
+                            throw new ArgumentException("Can't find info");
+                        filesToDelete.Add(desiredFileInfo);
+                    }
+                    else
+                    {
+                        FileInfo desiredFileInfo =
+                            fileInfoOld.SingleOrDefault(desiredFileInfo => desiredFileInfo.Name == file);
+                        if (desiredFileInfo is null)
+                            throw new ArgumentException("Can't find info");
+                        filesToChange.Add(desiredFileInfo);
+                    }
+                }
+
+                foreach (FileInfo file in filesToDelete)
+                    File.Delete(file.FullName);
+                if (Directory.GetFiles(oldRestorePointPath).Length == 0)
+                {
+                    Directory.Delete(oldRestorePointPath, true);
+                    backupJob1.Repository.RestorePoints.Remove(new RestorePoint(oldRestorePointPath));
+                }
+
+                foreach (FileInfo file in filesToChange)
+                {
+                    Directory.Move(file.FullName, newRestorePointPath);
+                }
+            }
+
+            _logger.SendMessage("RestorePoints merged");
+        }
+
+        private BackupJob FindBackupJobForRestorePoint(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("Null path");
+            foreach (BackupJob backup in _backupJobs)
+            {
+                var directoryInfo = new DirectoryInfo(backup.Repository.Path);
+                string[] directories = Directory.GetDirectories(directoryInfo.FullName);
+                foreach (string directory in directories)
+                {
+                    if (directory == path)
+                        return backup;
+                }
+            }
+
+            return null;
         }
 
         private Configuration SaveBackupJob(BackupJob backupJob)
