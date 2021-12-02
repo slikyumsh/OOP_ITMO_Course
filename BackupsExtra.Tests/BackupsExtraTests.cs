@@ -8,30 +8,6 @@ namespace BackupsExtra.Tests
 {
     public class BackupsExtraTests
     {
-        [Test]
-        public void TestDownloadAndSave()
-        {
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra/WorkFiles/");
-            FileStream fileStream1 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra/WorkFiles/1.txt");
-            fileStream1.Close();
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra/BackupWorkFiles/");
-            var service = new BackupExtraService(new ConsoleLogger(), 3);
-            Assert.AreEqual(0,service.NumberOfDownloadedBackupJobs);
-            service.Download();
-            int x = service.NumberOfDownloadedBackupJobs;
-            BackupJob job = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra/BackupWorkFiles/"), new ConsoleLogger());
-            service.Save();
-            int y = service.NumberOfDownloadedBackupJobs;
-            Assert.AreEqual(1, y - x);
-            Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra/WorkFiles/", true);
-            Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra/BackupWorkFiles/", true);
-        }
 
         [Test]
         public void TryUnpackToAnotherDirectory()
