@@ -12,7 +12,6 @@ namespace Backups
         [JsonProperty("nameRestorePoint")]
         private string _name;
         private List<FileInfo> _files;
-
         public RestorePoint(string name)
         {
             if (string.IsNullOrEmpty(name))

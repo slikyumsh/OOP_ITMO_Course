@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace BackupsExtra
@@ -15,13 +16,20 @@ namespace BackupsExtra
             _backupJobs = backupJobs ?? throw new ArgumentException("Invalid argument");
         }
 
-        public void Clear()
+        public void ClearPoints()
         {
             foreach (BackupJob backupJob in _backupJobs)
             {
-                if (backupJob.DateOfBirth < _time)
+                for (int i = 0; i < backupJob.Repository.NumberOfRestorePoints; i++)
                 {
-                    _backupJobs.Remove(backupJob);
+                    DateTime creationTime =
+                        Directory.GetCreationTime(
+                            backupJob.Repository.Path + "\\RestorePoint" + Convert.ToString(i + 1));
+                    if (creationTime < _time)
+                    {
+                        Directory.Delete(backupJob.Repository.Path + "\\RestorePoint" + Convert.ToString(i + 1), true);
+                        backupJob.Repository.RestorePoints.Remove(backupJob.Repository.RestorePoints[i]);
+                    }
                 }
             }
 
