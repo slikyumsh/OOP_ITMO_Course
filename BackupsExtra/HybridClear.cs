@@ -31,7 +31,7 @@ namespace BackupsExtra
                 {
                     if (backupJob.Repository.NumberOfRestorePoints > _number)
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
+                        var directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
                         DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
                         for (int i = 0; i < subDirectoriesInfo.Length; i++)
                         {
@@ -50,9 +50,9 @@ namespace BackupsExtra
             }
             else
             {
-                ClearByDate byDate = new ClearByDate(_time, _backupJobs);
+                var byDate = new ClearByDate(_time, _backupJobs);
                 byDate.ClearPoints();
-                ClearByNumber byNumber = new ClearByNumber(_number, _backupJobs);
+                var byNumber = new ClearByNumber(_number, _backupJobs);
                 byNumber.ClearPoints();
             }
         }

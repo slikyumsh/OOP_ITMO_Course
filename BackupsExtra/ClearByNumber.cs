@@ -26,7 +26,7 @@ namespace BackupsExtra
             {
                 if (backupJob.Repository.NumberOfRestorePoints > _number)
                 {
-                    DirectoryInfo directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
+                    var directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
                     DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
                     for (int i = 0; i < subDirectoriesInfo.Length - _number; i++)
                     {

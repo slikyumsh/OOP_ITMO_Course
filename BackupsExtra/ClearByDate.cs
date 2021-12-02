@@ -20,7 +20,7 @@ namespace BackupsExtra
         {
             foreach (BackupJob backupJob in _backupJobs)
             {
-                DirectoryInfo directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
+                var directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
                 DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
                 for (int i = 0; i < subDirectoriesInfo.Length; i++)
                 {
