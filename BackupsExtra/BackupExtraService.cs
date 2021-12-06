@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using Backups;
-using Json.Net;
 using Newtonsoft.Json;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace BackupsExtra
 {
@@ -20,29 +17,30 @@ namespace BackupsExtra
         private string _pathToConfig;
         private ILogger _logger;
 
-        public BackupExtraService(ILogger logger, int numberPoints)
+        public BackupExtraService(ILogger logger, int numberPoints, Paths paths)
         {
             if (logger is null)
                 throw new ArgumentException("Null logger");
-            if (numberPoints <= 0)
-                throw new ArgumentException("Limit of restore point per one BackupJob must be positive");
+
+            // this minimum limit, because it is an adequate restriction,
+            // because it must be positive, and deleting and merging with a single point is impossible
+            if (numberPoints <= 2)
+                throw new ArgumentException("Limit of restore point per one BackupJob must be positive and bigger than 2");
             _limitForRestorePointsAtOneBackupJob = numberPoints;
             _backupJobs = new List<BackupJob>();
-            _pathToConfig = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\BackupsExtra";
+            _pathToConfig = paths.ConfigPath;
             _logger = logger;
-            _path = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "\\WorkFiles";
+            _path = paths.WorkPath;
         }
 
         public List<BackupJob> BackupJobs => _backupJobs;
         public int NumberOfDownloadedBackupJobs => _backupJobs.Count;
-        public BackupJob CreateBackupJob(IAlgorithm algorithm, IRepository repository, ILogger logger)
+        public BackupJob CreateBackupJob(IAlgorithm algorithm, IRepository repository)
         {
             if (algorithm is null)
                 throw new ArgumentException("Null algorithm exception");
             if (repository is null)
                 throw new ArgumentException("Null repository");
-            if (logger is null)
-                throw new ArgumentException("Null logger");
             var backupJob = new BackupJob(algorithm, repository);
             _backupJobs.Add(backupJob);
             _logger.SendMessage("Created BackupJob");
@@ -71,7 +69,13 @@ namespace BackupsExtra
                 throw new ArgumentException("This BackupJob is not contained by list<BackupJob>");
             RestorePoint restorePoint = backupJob.MakePoint();
             if (backupJob.Repository.RestorePoints.Count == _limitForRestorePointsAtOneBackupJob)
-                MergeRestorePoints(backupJob.Repository.Path + "\\RestorePoint1", backupJob.Repository.Path + "\\RestorePoint2");
+            {
+                string[] points = Directory.GetFiles(backupJob.Repository.Path);
+
+                // the first two elements are always there, since this minimum limit is set by the constructor
+                MergeRestorePoints(points[0], points[1]);
+            }
+
             _logger.SendMessage("Created RestorePoint");
             return restorePoint;
         }
@@ -79,7 +83,7 @@ namespace BackupsExtra
         public JobObject CreateJobObject(string path, BackupJob backupJob)
         {
             if (string.IsNullOrEmpty(path))
-                throw new ArgumentException("Null or Empty string");
+                throw new ArgumentException("Empty path");
             BackupJob desiredBackupJob =
                 _backupJobs.SingleOrDefault(desiredBackupJob => desiredBackupJob.Id == backupJob.Id);
             if (desiredBackupJob is null)
@@ -90,16 +94,16 @@ namespace BackupsExtra
             return jobObject;
         }
 
-        public void Download()
+        public void Restore()
         {
             List<Configuration> data =
-                JsonConvert.DeserializeObject<List<Configuration>>(File.ReadAllText(_pathToConfig + "\\Config.json"));
+                JsonConvert.DeserializeObject<List<Configuration>>(File.ReadAllText(_pathToConfig + "/Config.json"));
             foreach (Configuration configuration in data)
             {
                 DownloadOneBackupJob(configuration);
             }
 
-            _logger.SendMessage("Downloaded from Json");
+            _logger.SendMessage("Restored from Json");
         }
 
         public void Save()
@@ -111,7 +115,7 @@ namespace BackupsExtra
             }
 
             string json = JsonConvert.SerializeObject(configurations, Formatting.Indented);
-            File.WriteAllText(_pathToConfig + "\\Config.json", json);
+            File.WriteAllText(_pathToConfig + "/Config.json", json);
             _logger.SendMessage("Saved to Json");
         }
 
@@ -149,95 +153,32 @@ namespace BackupsExtra
             _logger.SendMessage("Cleaned!");
         }
 
-        private void MergeRestorePoints(string oldRestorePointPath, string newRestorePointPath)
+        public void MergeRestorePoints(string oldRestorePointPath, string newRestorePointPath)
         {
             if (string.IsNullOrWhiteSpace(oldRestorePointPath))
-                throw new ArgumentException("Invalid path");
+                throw new ArgumentException("Empty path");
             if (string.IsNullOrWhiteSpace(newRestorePointPath))
-                throw new ArgumentException("Invalid path");
+                throw new ArgumentException("Empty path");
             if (!Directory.Exists(oldRestorePointPath))
                 throw new ArgumentException("Invalid path to RestorePoint");
             if (!Directory.Exists(newRestorePointPath))
-                throw new ArgumentException("Invalid path to RestorePoint!!!");
+                throw new ArgumentException("Invalid path to RestorePoint");
             BackupJob backupJob1 = FindBackupJobForRestorePoint(oldRestorePointPath);
             BackupJob backupJob2 = FindBackupJobForRestorePoint(newRestorePointPath);
-
             if (backupJob1 is null)
                 throw new ArgumentException("Can't find backup that contains this restore point");
             if (backupJob2 is null)
                 throw new ArgumentException("Can't find backup that contains this restore point1");
             if (backupJob1.Id != backupJob2.Id)
                 throw new ArgumentException("These points lay in different directories");
-            if (backupJob1.Algorithm.ToString() == "SingleStorage")
-            {
-                Directory.Delete(oldRestorePointPath, true);
-                backupJob1.Repository.RestorePoints.Remove(new RestorePoint(oldRestorePointPath));
-            }
-            else
-            {
-                string[] filesOld = Directory.GetFiles(oldRestorePointPath);
-                string[] filesNew = Directory.GetFiles(newRestorePointPath);
-                var fileInfoOld = new List<FileInfo>();
-                var fileInfoNew = new List<FileInfo>();
-                var filesOldList = new List<string>();
-                var filesNewList = new List<string>();
-                var filesToChange = new List<FileInfo>();
-                var filesToDelete = new List<FileInfo>();
-                foreach (var file in filesNew)
-                {
-                    var newFileInfo = new FileInfo(file);
-                    fileInfoNew.Add(newFileInfo);
-                    filesNewList.Add(newFileInfo.Name);
-                }
-
-                foreach (string file in filesOld)
-                {
-                    var newFileInfo = new FileInfo(file);
-                    fileInfoOld.Add(newFileInfo);
-                    filesOldList.Add(newFileInfo.Name);
-                }
-
-                foreach (string file in filesOldList)
-                {
-                    if (filesNewList.Contains(file))
-                    {
-                        FileInfo desiredFileInfo =
-                            fileInfoOld.SingleOrDefault(desiredFileInfo => desiredFileInfo.Name == file);
-                        if (desiredFileInfo is null)
-                            throw new ArgumentException("Can't find info");
-                        filesToDelete.Add(desiredFileInfo);
-                    }
-                    else
-                    {
-                        FileInfo desiredFileInfo =
-                            fileInfoOld.SingleOrDefault(desiredFileInfo => desiredFileInfo.Name == file);
-                        if (desiredFileInfo is null)
-                            throw new ArgumentException("Can't find info");
-                        filesToChange.Add(desiredFileInfo);
-                    }
-                }
-
-                foreach (FileInfo file in filesToDelete)
-                    File.Delete(file.FullName);
-                if (Directory.GetFiles(oldRestorePointPath).Length == 0)
-                {
-                    Directory.Delete(oldRestorePointPath, true);
-                    backupJob1.Repository.RestorePoints.Remove(new RestorePoint(oldRestorePointPath));
-                }
-
-                foreach (FileInfo file in filesToChange)
-                {
-                    Directory.Move(file.FullName, newRestorePointPath);
-                }
-            }
-
+            backupJob1.MergeRestorePoints(oldRestorePointPath, newRestorePointPath);
             _logger.SendMessage("RestorePoints merged");
         }
 
         private BackupJob FindBackupJobForRestorePoint(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
-                throw new ArgumentException("Null path");
+                throw new ArgumentException("Empty path");
             foreach (BackupJob backup in _backupJobs)
             {
                 var directoryInfo = new DirectoryInfo(backup.Repository.Path);
@@ -271,7 +212,7 @@ namespace BackupsExtra
             var result = new List<RestorePoint>();
             var dir = new DirectoryInfo(_path);
             DirectoryInfo[] lst = dir.GetDirectories();
-            foreach (var dirInfo in lst)
+            foreach (DirectoryInfo dirInfo in lst)
             {
                 var restorePoint = new RestorePoint(dirInfo.Name);
                 result.Add(restorePoint);
@@ -290,11 +231,11 @@ namespace BackupsExtra
             {
                 case "SingleStorage":
                     var singleStorageAlgo = new SingleStorageAlgo();
-                    CreateBackupJob(singleStorageAlgo, new Repository(_path, GetListRestorePointByPath()), new ConsoleLogger());
+                    CreateBackupJob(singleStorageAlgo, new Repository(_path, GetListRestorePointByPath()));
                     break;
                 case "SplitStorages":
                     var splitStoragesAlgo = new SplitStoragesAlgo();
-                    CreateBackupJob(splitStoragesAlgo, new Repository(_path, GetListRestorePointByPath()), new ConsoleLogger());
+                    CreateBackupJob(splitStoragesAlgo, new Repository(_path, GetListRestorePointByPath()));
                     break;
                 default: throw new ArgumentException("Invalid algorithm " + algorithm);
             }

@@ -2,59 +2,88 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Backups;
 
 namespace BackupsExtra
 {
     public class HybridClear : ICleaner
     {
-        private List<BackupJob> _backupJobs;
+        private BackupJob _backupJob;
         private bool _ifAllСonditions;
         private DateTime _time;
         private int _number;
 
-        public HybridClear(DateTime time, List<BackupJob> backupJobs, int number, bool ifAllСonditions)
+        public HybridClear(DateTime time, BackupJob backupJob, int number, bool ifAllСonditions)
         {
             if (number <= 0)
                 throw new ArgumentException("Number should be positive");
             _number = number;
             _ifAllСonditions = ifAllСonditions;
             _time = time;
-            _backupJobs = backupJobs ?? throw new ArgumentException("Invalid argument");
+            _backupJob = backupJob ?? throw new ArgumentException("Invalid argument");
         }
 
         public void ClearPoints()
         {
+            Dictionary<DirectoryInfo, int> pointsForDelete = MarkPoints();
+            var indexes = new List<int>();
+            foreach (KeyValuePair<DirectoryInfo, int> pair in pointsForDelete)
+            {
+                indexes.Add(pair.Value);
+            }
+
+            indexes.Sort();
+            indexes.Reverse();
+
+            foreach (KeyValuePair<DirectoryInfo, int> pair in pointsForDelete)
+            {
+                if (Directory.Exists(pair.Key.FullName))
+                    Directory.Delete(pair.Key.FullName, true);
+            }
+
+            foreach (int index in indexes)
+            {
+                if (index < _backupJob.Repository.RestorePoints.Count)
+                    _backupJob.Repository.RestorePoints.Remove(_backupJob.Repository.RestorePoints[index]);
+            }
+
+            if (!_backupJob.Repository.RestorePoints.Any())
+                throw new ArgumentException("Backup became empty after cleaning");
+        }
+
+        public Dictionary<DirectoryInfo, int> MarkPoints()
+        {
+            var markedPoints = new Dictionary<DirectoryInfo, int>();
             if (_ifAllСonditions)
             {
-                foreach (BackupJob backupJob in _backupJobs)
-                {
-                    if (backupJob.Repository.NumberOfRestorePoints > _number)
-                    {
-                        var directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
-                        DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
-                        for (int i = 0; i < subDirectoriesInfo.Length; i++)
-                        {
-                            DateTime creationTime = Directory.GetCreationTime(subDirectoriesInfo[i].FullName);
-                            if (creationTime < _time)
-                            {
-                                Directory.Delete(subDirectoriesInfo[i].FullName, true);
-                                backupJob.Repository.RestorePoints.Remove(backupJob.Repository.RestorePoints[i]);
-                            }
-                        }
-                    }
-                }
-
-                if (!_backupJobs.Any())
-                    throw new ArgumentException("Empty _backupJobs");
+               var byDate = new ClearByDate(_time, _backupJob);
+               Dictionary<DirectoryInfo, int> markedPoints1 = byDate.MarkPoints();
+               var byNumber = new ClearByNumber(_number, _backupJob);
+               Dictionary<DirectoryInfo, int> markedPoints2 = byNumber.MarkPoints();
+               foreach (KeyValuePair<DirectoryInfo, int> pair in markedPoints1)
+               {
+                   if (markedPoints2.ContainsKey(pair.Key))
+                       markedPoints.Add(pair.Key, pair.Value);
+               }
             }
             else
             {
-                var byDate = new ClearByDate(_time, _backupJobs);
-                byDate.ClearPoints();
-                var byNumber = new ClearByNumber(_number, _backupJobs);
-                byNumber.ClearPoints();
+                var byDate = new ClearByDate(_time, _backupJob);
+                Dictionary<DirectoryInfo, int> markedPoints1 = byDate.MarkPoints();
+                var byNumber = new ClearByNumber(_number, _backupJob);
+                Dictionary<DirectoryInfo, int> markedPoints2 = byNumber.MarkPoints();
+                foreach (KeyValuePair<DirectoryInfo, int> pair in markedPoints1)
+                {
+                    markedPoints.Add(pair.Key, pair.Value);
+                }
+
+                foreach (KeyValuePair<DirectoryInfo, int> pair in markedPoints2)
+                {
+                    if (!markedPoints.ContainsKey(pair.Key))
+                        markedPoints.Add(pair.Key, pair.Value);
+                }
             }
+
+            return markedPoints;
         }
     }
 }

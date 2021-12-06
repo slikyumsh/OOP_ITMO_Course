@@ -8,36 +8,59 @@ namespace BackupsExtra
     public class ClearByNumber : ICleaner
     {
         private int _number;
-        private List<BackupJob> _backupJobs;
+        private BackupJob _backupJob;
 
-        public ClearByNumber(int number, List<BackupJob> backupJobs)
+        public ClearByNumber(int number, BackupJob backupJob)
         {
             if (number <= 0)
                 throw new ArgumentException("Non positive number");
-            if (backupJobs is null)
-                throw new ArgumentException("Null list<BackupJob>");
+            if (backupJob is null)
+                throw new ArgumentException("Null BackupJob");
             _number = number;
-            _backupJobs = backupJobs;
+            _backupJob = backupJob;
+        }
+
+        public Dictionary<DirectoryInfo, int> MarkPoints()
+        {
+            var markedPoints = new Dictionary<DirectoryInfo, int>();
+            if (_backupJob.Repository.RestorePoints.Count > _number)
+            {
+                var directoryInfo = new DirectoryInfo(_backupJob.Repository.Path);
+                DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
+                for (int i = 0; i < subDirectoriesInfo.Length - _number; i++)
+                {
+                    markedPoints.Add(subDirectoriesInfo[i], i);
+                }
+            }
+
+            return markedPoints;
         }
 
         public void ClearPoints()
         {
-            foreach (BackupJob backupJob in _backupJobs)
+            Dictionary<DirectoryInfo, int> pointsForDelete = MarkPoints();
+            var indexes = new List<int>();
+            foreach (KeyValuePair<DirectoryInfo, int> pair in pointsForDelete)
             {
-                if (backupJob.Repository.NumberOfRestorePoints > _number)
-                {
-                    var directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
-                    DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
-                    for (int i = 0; i < subDirectoriesInfo.Length - _number; i++)
-                    {
-                        Directory.Delete(subDirectoriesInfo[i].FullName, true);
-                        backupJob.Repository.RestorePoints.Remove(backupJob.Repository.RestorePoints[i]);
-                    }
-                }
+                indexes.Add(pair.Value);
             }
 
-            if (!_backupJobs.Any())
-                throw new ArgumentException("Empty _backupJobs");
+            indexes.Sort();
+            indexes.Reverse();
+            foreach (KeyValuePair<DirectoryInfo, int> pair in pointsForDelete)
+            {
+                if (Directory.Exists(pair.Key.FullName))
+                    Directory.Delete(pair.Key.FullName, true);
+            }
+
+            foreach (int index in indexes)
+            {
+                if (index < _backupJob.Repository.RestorePoints.Count)
+                    _backupJob.Repository.RestorePoints.Remove(_backupJob.Repository.RestorePoints[index]);
+            }
+
+            if (!_backupJob.Repository.RestorePoints.Any())
+                throw new ArgumentException("Backup became empty after cleaning");
         }
     }
 }

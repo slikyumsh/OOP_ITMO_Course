@@ -8,33 +8,57 @@ namespace BackupsExtra
     public class ClearByDate : ICleaner
     {
         private DateTime _time;
-        private List<BackupJob> _backupJobs;
+        private BackupJob _backupJob;
 
-        public ClearByDate(DateTime time, List<BackupJob> backupJobs)
+        public ClearByDate(DateTime time, BackupJob backupJob)
         {
             _time = time;
-            _backupJobs = backupJobs ?? throw new ArgumentException("Invalid argument");
+            _backupJob = backupJob ?? throw new ArgumentException("Null backupJob");
         }
 
         public void ClearPoints()
         {
-            foreach (BackupJob backupJob in _backupJobs)
+            Dictionary<DirectoryInfo, int> pointsForDelete = MarkPoints();
+            var indexes = new List<int>();
+            foreach (KeyValuePair<DirectoryInfo, int> pair in pointsForDelete)
             {
-                var directoryInfo = new DirectoryInfo(backupJob.Repository.Path);
-                DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
-                for (int i = 0; i < subDirectoriesInfo.Length; i++)
+                indexes.Add(pair.Value);
+            }
+
+            indexes.Sort();
+            indexes.Reverse();
+
+            foreach (KeyValuePair<DirectoryInfo, int> pair in pointsForDelete)
+            {
+                if (Directory.Exists(pair.Key.FullName))
+                    Directory.Delete(pair.Key.FullName, true);
+            }
+
+            foreach (int index in indexes)
+            {
+                if (index < _backupJob.Repository.RestorePoints.Count)
+                    _backupJob.Repository.RestorePoints.Remove(_backupJob.Repository.RestorePoints[index]);
+            }
+
+            if (!_backupJob.Repository.RestorePoints.Any())
+                throw new ArgumentException("Backup became empty after cleaning");
+        }
+
+        public Dictionary<DirectoryInfo, int> MarkPoints()
+        {
+            var directoryInfo = new DirectoryInfo(_backupJob.Repository.Path);
+            DirectoryInfo[] subDirectoriesInfo = directoryInfo.GetDirectories();
+            var markedPoints = new Dictionary<DirectoryInfo, int>();
+            for (int i = 0; i < subDirectoriesInfo.Length; i++)
+            {
+                DateTime creationTime = Directory.GetCreationTime(subDirectoriesInfo[i].FullName);
+                if (creationTime < _time)
                 {
-                    DateTime creationTime = Directory.GetCreationTime(subDirectoriesInfo[i].FullName);
-                    if (creationTime < _time)
-                    {
-                        Directory.Delete(subDirectoriesInfo[i].FullName, true);
-                        backupJob.Repository.RestorePoints.Remove(backupJob.Repository.RestorePoints[i]);
-                    }
+                    markedPoints.Add(subDirectoriesInfo[i], i);
                 }
             }
 
-            if (!_backupJobs.Any())
-                throw new ArgumentException("Empty _backupJobs");
+            return markedPoints;
         }
     }
 }
