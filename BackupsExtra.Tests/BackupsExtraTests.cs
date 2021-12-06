@@ -8,9 +8,10 @@ namespace BackupsExtra.Tests
 {
     public class BackupsExtraTests
     {
+        private BackupExtraService _service;
 
-        [Test]
-        public void TryUnpackToAnotherDirectory()
+        [SetUp]
+        public void Setup()
         {
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
@@ -30,20 +31,27 @@ namespace BackupsExtra.Tests
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/BackupsExtra.Tests/BackupWorkFiles/");
-            var service = new BackupExtraService(new ConsoleLogger(), 3);
-            BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
+            _service = new BackupExtraService(new ConsoleLogger(), 3, new Paths(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                "/BackupsExtra.Tests/WorkFiles/", Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
+                                                  "/BackupsExtra.Tests"));
+        }
+
+        [Test]
+        public void TryUnpackToAnotherDirectory()
+        {
+            BackupJob a = _service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"));
             var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
             var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
             var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
-            service.AddJobObject(x, a);
-            service.AddJobObject(y, a);
-            RestorePoint c = service.CreateRestorePoint(a);
-            service.AddJobObject(z, a);
-            service.CreateRestorePoint(a);
+            _service.AddJobObject(x, a);
+            _service.AddJobObject(y, a);
+            RestorePoint c = _service.CreateRestorePoint(a);
+            _service.AddJobObject(z, a);
+            _service.CreateRestorePoint(a);
             Directory.CreateDirectory(
                 Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                 "/BackupsExtra.Tests/Dima/");
-            service.RestoreFilesFromPoint(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/RestorePoint9/", Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/Dima/");
+            _service.RestoreFilesFromPoint(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/RestorePoint9/", Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/Dima/");
             string[] testFiles = Directory.GetFiles(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
                                "/BackupsExtra.Tests/Dima/");
             Assert.AreEqual(2, testFiles.Length);
@@ -56,35 +64,16 @@ namespace BackupsExtra.Tests
         [Test]
         public void TryToCleanPointsByNumber()
         {
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/");
-            FileStream fileStream1 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/A.txt");
-            FileStream fileStream2 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/B.txt");
-            FileStream fileStream3 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/C.txt");
-            fileStream1.Close();
-            fileStream2.Close();
-            fileStream3.Close();
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/BackupWorkFiles/");
-            var service = new BackupExtraService(new ConsoleLogger(), 3);
-            BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
+            BackupJob a = _service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"));
             var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
             var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
             var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
-            service.AddJobObject(x, a);
-            service.AddJobObject(y, a);
-            RestorePoint c = service.CreateRestorePoint(a);
-            service.AddJobObject(z, a);
-            service.CreateRestorePoint(a);
-            service.Clear(new ClearByNumber(1, service.BackupJobs));
+            _service.AddJobObject(x, a);
+            _service.AddJobObject(y, a);
+            RestorePoint c = _service.CreateRestorePoint(a);
+            _service.AddJobObject(z, a);
+            _service.CreateRestorePoint(a);
+            _service.Clear(new ClearByNumber(1, _service.BackupJobs[0]));
             string[] directories = Directory.GetDirectories(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/");
             Assert.AreEqual(1, directories.Length);
             Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/", true);
@@ -94,35 +83,16 @@ namespace BackupsExtra.Tests
         [Test]
         public void TryToCleanPointsByDate()
         {
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/");
-            FileStream fileStream1 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/A.txt");
-            FileStream fileStream2 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/B.txt");
-            FileStream fileStream3 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/C.txt");
-            fileStream1.Close();
-            fileStream2.Close();
-            fileStream3.Close();
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/BackupWorkFiles/");
-            var service = new BackupExtraService(new ConsoleLogger(), 3);
-            BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
+            BackupJob a = _service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"));
             var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
             var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
             var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
-            service.AddJobObject(x, a);
-            service.AddJobObject(y, a);
-            RestorePoint c = service.CreateRestorePoint(a);
-            service.AddJobObject(z, a);
-            service.CreateRestorePoint(a);
-            service.Clear(new ClearByDate(DateTime.Today, service.BackupJobs));
+            _service.AddJobObject(x, a);
+            _service.AddJobObject(y, a);
+            RestorePoint c = _service.CreateRestorePoint(a);
+            _service.AddJobObject(z, a);
+            _service.CreateRestorePoint(a);
+            _service.Clear(new ClearByDate(DateTime.Today, _service.BackupJobs[0]));
             string[] directories = Directory.GetDirectories(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/");
             Assert.AreEqual(2, directories.Length);
             Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/", true);
@@ -132,35 +102,15 @@ namespace BackupsExtra.Tests
         [Test]
         public void TryToCleanPointsHybridOneRuleFromTwo()
         {
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/");
-            FileStream fileStream1 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/A.txt");
-            FileStream fileStream2 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/B.txt");
-            FileStream fileStream3 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/C.txt");
-            fileStream1.Close();
-            fileStream2.Close();
-            fileStream3.Close();
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/BackupWorkFiles/");
-            var service = new BackupExtraService(new ConsoleLogger(), 3);
-            BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
+            BackupJob d = _service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"));
             var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
             var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
             var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
-            service.AddJobObject(x, a);
-            service.AddJobObject(y, a);
-            RestorePoint c = service.CreateRestorePoint(a);
-            service.AddJobObject(z, a);
-            service.CreateRestorePoint(a);
-            service.Clear(new HybridClear(DateTime.Today, service.BackupJobs, 1, false));
+            _service.AddJobObject(x, d);
+            _service.AddJobObject(y, d);
+            _service.CreateRestorePoint(d);
+            _service.CreateRestorePoint(d);
+            _service.Clear(new HybridClear(DateTime.Today, d, 1, false));
             string[] directories = Directory.GetDirectories(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/");
             Assert.AreEqual(1, directories.Length);
             Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/", true);
@@ -170,35 +120,16 @@ namespace BackupsExtra.Tests
         [Test]
         public void TryToCleanPointsHybridAllRules()
         {
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/");
-            FileStream fileStream1 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/A.txt");
-            FileStream fileStream2 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/B.txt");
-            FileStream fileStream3 = File.Create(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/WorkFiles/C.txt");
-            fileStream1.Close();
-            fileStream2.Close();
-            fileStream3.Close();
-            Directory.CreateDirectory(
-                Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName +
-                "/BackupsExtra.Tests/BackupWorkFiles/");
-            var service = new BackupExtraService(new ConsoleLogger(), 3);
-            BackupJob a = service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"), new ConsoleLogger());
+            BackupJob a = _service.CreateBackupJob(new SingleStorageAlgo(), new Repository(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/"));
             var x = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/A.txt");
             var y = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/B.txt");
             var z = new JobObject(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/C.txt");
-            service.AddJobObject(x, a);
-            service.AddJobObject(y, a);
-            RestorePoint c = service.CreateRestorePoint(a);
-            service.AddJobObject(z, a);
-            service.CreateRestorePoint(a);
-            service.Clear(new HybridClear(DateTime.Today, service.BackupJobs, 1, true));
+            _service.AddJobObject(x, a);
+            _service.AddJobObject(y, a);
+            RestorePoint c = _service.CreateRestorePoint(a);
+            _service.AddJobObject(z, a);
+            _service.CreateRestorePoint(a);
+            _service.Clear(new HybridClear(DateTime.Today, _service.BackupJobs[0], 1, true));
             string[] directories = Directory.GetDirectories(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/BackupWorkFiles/");
             Assert.AreEqual(2, directories.Length);
             Directory.Delete(Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.Parent?.FullName + "/BackupsExtra.Tests/WorkFiles/", true);
