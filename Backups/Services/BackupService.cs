@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Backups
 {
     public class BackupService
     {
+        [JsonProperty("algorithm")]
         private IAlgorithm _algorithm;
         private IRepository _repository;
+        [JsonProperty("jobObjects")]
         private List<JobObject> _jobObjects;
 
         public BackupService(IAlgorithm algorithm, IRepository repository)
@@ -17,9 +20,20 @@ namespace Backups
             _jobObjects = new List<JobObject>();
         }
 
-        public void MakePoint()
+        public IAlgorithm Algorithm => _algorithm;
+        public IRepository Repository => _repository;
+        public List<JobObject> JobObjects => _jobObjects;
+
+        public RestorePoint MakePoint()
         {
-            _repository.SavePoint(_algorithm.MakePoint(_jobObjects));
+            RestorePoint newRestorePoint = _algorithm.MakePoint(_jobObjects);
+            _repository.SavePoint(newRestorePoint);
+            return newRestorePoint;
+        }
+
+        public List<RestorePoint> GetListOfRestorePoints()
+        {
+            return _repository.RestorePoints;
         }
 
         public void AddJobObject(JobObject jobObject)
