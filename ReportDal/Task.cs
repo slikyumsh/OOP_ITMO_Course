@@ -17,7 +17,6 @@ namespace ReportDal
             Comment = String.Empty;
             Id = Guid.NewGuid();
             Modifications = new List<TaskModification>();
-            Modifications.Add(new TaskModification());
         }
         public Task(string name, Employee employee)
         {
@@ -32,6 +31,7 @@ namespace ReportDal
             EmployeeId = employee.Id;
             CreationTime = DateTime.Now;
             ModificationTime = DateTime.Now;
+            Modifications = new List<TaskModification>();
             Id = Guid.NewGuid();
         }
         

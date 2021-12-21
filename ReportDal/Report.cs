@@ -44,7 +44,7 @@ namespace ReportDal
         {
             if (string.IsNullOrWhiteSpace(text))
                 throw new ArgumentException("Empty description");
-            Description = text;
+            Description += text;
         }
         
         public Report MergeReports(Report first, Report second)
