@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Report.Models;
@@ -22,12 +23,39 @@ namespace WebApplication.Controllers
             _service = service;
         }
 
-        [HttpGet]
-        public IEnumerable<ReportDto> Get()
+        [HttpPost("Create")]
+        public async Task<ActionResult<ReportDto>> CreateTask(string name, Guid employeeId)
         {
-            var a = new ReportDal.Report
-                {Name = "Dima", Status = ReportStatus.Open, Id = Guid.NewGuid()};
-            return new List<ReportDto>(_mapper.Map<List<ReportDto>>(new List<ReportDal.Report> {a}));
+            var report = _service.CreateReport(name, employeeId);
+            return _mapper.Map<ReportDto>(report);
+        }
+        
+        [HttpGet("AllReports")]
+        public async Task<ActionResult<List<ReportDto>>> GetAll()
+        {
+            List<ReportDal.Report> report = _service.GetAllReports();
+            return _mapper.Map<List<ReportDto>>(report);
+        }
+        
+        [HttpPut("ChangeStatus")]
+        public async Task<ActionResult<TaskDto>> ChangeTaskStatus(ReportStatus status, Guid reportId)
+        {
+            _service.ChangeStatus(status, reportId);
+            return Ok();
+        }
+        
+        [HttpPut("AddDiscription")]
+        public async Task<ActionResult<TaskDto>> AddDiscription(string text, Guid reportId)
+        {
+            _service.AddDescription(text, reportId);
+            return Ok();
+        }
+        
+        [HttpPut("AddTaskToReport")]
+        public async Task<ActionResult<TaskDto>> AddTaskToReport(Guid taskId, Guid reportId)
+        {
+            _service.AddTaskToReport(taskId, reportId);
+            return Ok();
         }
     }
 }

@@ -24,14 +24,6 @@ namespace WebApplication.Controllers
             _service = service;
         }
 
-        [HttpGet]
-        public IEnumerable<TaskDto> Get()
-        {
-            Task a = new Task{Employee = new Employee("Dima", null), Number = 1, Status = TaskStatus.Open, EmployeeId = Guid.NewGuid(), Comment = "lol"};
-
-            return new List<TaskDto>(_mapper.Map<List<TaskDto>>(new List<Task> { a }));
-        }
-
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<TaskDto>> GetTaskId(Guid id)
         {
@@ -39,11 +31,81 @@ namespace WebApplication.Controllers
             return _mapper.Map<TaskDto>(task);
         }
         
-        [HttpPost]
+        [HttpPost("Create")]
         public async Task<ActionResult<TaskDto>> CreateTask([FromQuery]string name, [FromQuery]Guid employeeId)
         {
             var task = _service.CreateTask(name, employeeId);
             return _mapper.Map<TaskDto>(task);
+        }
+        
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<TaskDto>> AddComment([FromQuery]string comment, [FromRoute] Guid id, [FromQuery]Guid employeeId)
+        {
+            var task = _service.AddComment(comment, id, employeeId );
+            return _mapper.Map<TaskDto>(task);
+        }
+        
+        [HttpGet("ByCreationTime")]
+        public async Task<ActionResult<TaskDto>> GetCreationTime(DateTime time)
+        {
+            Task task = _service.FindTaskForCreatingTime(time);
+            return _mapper.Map<TaskDto>(task);
+        }
+        
+        [HttpGet("ByModificationTime")]
+        public async Task<ActionResult<List<TaskDto>>> GetModificationTime(DateTime time)
+        {
+            List<Task> task = _service.FindTaskForModificationTime(time);
+            return _mapper.Map<List<TaskDto>>(task);
+        }
+        
+        [HttpGet("ByNumber")]
+        public async Task<ActionResult<TaskDto>> GetByNumber(int number)
+        {
+            Task task = _service.FindTaskForNumber(number);
+            return _mapper.Map<TaskDto>(task);
+        }
+        
+        [HttpGet("ByEmployeeId")]
+        public async Task<ActionResult<List<TaskDto>>> GetEmployeeId(Guid id)
+        {
+            List<Task> task = _service.FindTaskForEmployeeTask(id);
+            return _mapper.Map<List<TaskDto>>(task);
+        }
+        
+        [HttpGet("AllTasks")]
+        public async Task<ActionResult<List<TaskDto>>> GetAllCreation()
+        {
+            List<Task> task = _service.GetAllTasks();
+            return _mapper.Map<List<TaskDto>>(task);
+        }
+        
+        [HttpGet("FindTaskForEmployeeModification")]
+        public async Task<ActionResult<List<TaskDto>>> FindTaskForEmployeeModification(Guid id)
+        {
+            List<Task> task = _service.FindTaskForEmployeeModification(id);
+            return _mapper.Map<List<TaskDto>>(task);
+        }
+        
+        [HttpPut("ChangeTaskEmployee")]
+        public async Task<ActionResult<TaskDto>> ChangeTaskEmployee(Guid id, Guid employeeId)
+        {
+            _service.ChangeTaskEmployee(employeeId, id);
+            return Ok();
+        }
+        
+        [HttpPut("ChangeTaskStatus")]
+        public async Task<ActionResult<TaskDto>> ChangeTaskStatus(TaskStatus status, Guid taskId)
+        {
+            _service.ChangeTaskStatus(status, taskId);
+            return Ok();
+        }
+        
+        [HttpPut("SolveTask")]
+        public async Task<ActionResult<TaskDto>> SolveTask(Guid employeeId, Guid taskId)
+        {
+            _service.SolveTask(employeeId, taskId);
+            return Ok();
         }
     }
 }

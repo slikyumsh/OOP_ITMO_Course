@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Report.Models;
@@ -22,13 +23,46 @@ namespace WebApplication.Controllers
             _service = service;
         }
 
-        [HttpGet]
-        public IEnumerable<EmployeeDto> Get()
+        [HttpPost("Create")]
+        public async Task<ActionResult<EmployeeDto>> CreateTask([FromQuery]string name, [FromQuery]Guid employeeId)
         {
-            Employee a = new Employee{Name = "Dima", Boss = null, Id = Guid.NewGuid()};
-            
-            return new List<EmployeeDto>(_mapper.Map<List<EmployeeDto>>(new List<Employee> { a }));
+            var employee = _service.CreateEmployee(name, employeeId);
+            return _mapper.Map<EmployeeDto>(employee);
         }
         
+        [HttpDelete("Delete")]
+        public async Task<ActionResult<EmployeeDto>> DeleteTask(Guid employeeId)
+        {
+            _service.Delete(employeeId);
+            return Ok();
+        }
+        
+        [HttpGet("AllEmployees")]
+        public async Task<ActionResult<List<EmployeeDto>>> GetAll()
+        {
+            List<Employee> employees = _service.GetAll();
+            return _mapper.Map<List<EmployeeDto>>(employees);
+        }
+        
+        [HttpGet("GetEmployeeById")]
+        public async Task<ActionResult<EmployeeDto>>GetEmployeeById(Guid id)
+        {
+            Employee employee = _service.GetEmployeeById(id);
+            return _mapper.Map<EmployeeDto>(employee);
+        }
+        
+        [HttpGet("GetEmployeeByNumber")]
+        public async Task<ActionResult<EmployeeDto>>GetEmployeeByNumber(int number)
+        {
+            Employee employee = _service.GetEmployeeByNumber(number);
+            return _mapper.Map<EmployeeDto>(employee);
+        }
+        
+        [HttpGet("GetFinalReport")]
+        public async Task<ActionResult<ReportDto>>GetEmployeeByNumber()
+        {
+            ReportDal.Report report = _service.GetFinalReport();
+            return _mapper.Map<ReportDto>(report);
+        }
     }
 }
