@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using ReportBLL;
 using ReportDal;
 
 namespace WebApplication
@@ -24,11 +25,12 @@ namespace WebApplication
         }
 
         public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ReportContext>(opt => opt.UseSqlite());
+            services.AddScoped<ITaskService, TaskService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
+            services.AddScoped<IReportService, ReportService>();
+            services.AddDbContext<ReportContext>(opt => opt.UseSqlite("Data Source=myReports.db;Cache=Shared;"));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -36,8 +38,7 @@ namespace WebApplication
             });
             services.AddAutoMapper(typeof(Startup));
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
