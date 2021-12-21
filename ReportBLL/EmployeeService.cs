@@ -16,7 +16,7 @@ namespace ReportBLL
 
         public Employee CreateEmployee(string name, Guid bossId)
         {
-            Employee boss = GetEmployeeById(bossId);
+            Employee boss = FindEmployeeById(bossId);
             return CreateEmployee(name, boss);
         }
 
@@ -32,6 +32,13 @@ namespace ReportBLL
             Employee desiredEmployee = employees.SingleOrDefault(desiredEmployee => desiredEmployee.Id == id);
             if (desiredEmployee is null)
                 throw new ArgumentException("Can't find this employee");
+            return desiredEmployee;
+        }
+        
+        public Employee FindEmployeeById(Guid id)
+        {
+            List<Employee> employees = GetAll();
+            Employee desiredEmployee = employees.SingleOrDefault(desiredEmployee => desiredEmployee.Id == id);
             return desiredEmployee;
         }
 
@@ -84,7 +91,7 @@ namespace ReportBLL
             var employees = _context.Employees.ToList();
             if (!employees.Any() && boss is null)
             {
-                var teamlead = new Employee(name, null);
+                var teamlead = new Employee(name);
                 _context.Employees.Add(teamlead);
                 _context.SaveChanges();
                 return teamlead;
@@ -94,17 +101,16 @@ namespace ReportBLL
                 Employee desiredEmployee = employees.SingleOrDefault(desiredEmployee => desiredEmployee.Boss is null);
                 if (desiredEmployee is null)
                     throw new ArgumentException("Can't create employee");
-                var teamlead = new Employee(name, null);
-                desiredEmployee.Boss = teamlead;
+                var teamlead = new Employee(name);
+                desiredEmployee.SetBoss(teamlead);
                 _context.Employees.Add(teamlead);
                 _context.SaveChanges();
                 return teamlead;
             }
 
             Employee desiredBoss = employees.SingleOrDefault(desiredBoss => desiredBoss.Id == boss.Id);
-            if (desiredBoss is null)
-                throw new ArgumentException("Can't find boss");
-            var employee = new Employee(name, desiredBoss);
+            var employee = new Employee(name);
+            employee.SetBoss(desiredBoss);
             _context.Employees.Add(employee);
             _context.SaveChanges();
             return employee;
@@ -118,14 +124,19 @@ namespace ReportBLL
             if (employee.Boss is null)
             {
                 List<Employee> desiredEmployees =
-                    employees.FindAll(desiredEmployee => desiredEmployee.Boss.Id == employee.Id);
+                    employees.FindAll(desiredEmployee => desiredEmployee.BossId == employee.Id);
                 if (!desiredEmployees.Any())
-                    throw new ArgumentException("Can't any employees");
-                desiredEmployees[0].Boss = null;
+                {
+                    _context.Employees.Remove(employee);
+                    _context.SaveChanges();
+                    return;
+                }
+
+                desiredEmployees[0].SetBoss(null);
                 foreach (var employer in desiredEmployees)
                 {
                     if (employer.Boss != null)
-                        employer.Boss = desiredEmployees[0];
+                        employer.SetBoss(desiredEmployees[0]);
                 }
 
                 _context.Employees.Remove(employee);
@@ -134,12 +145,10 @@ namespace ReportBLL
             else
             {
                 List<Employee> desiredEmployees =
-                    employees.FindAll(desiredEmployee => desiredEmployee.Boss.Id == employee.Id);
-                if (!desiredEmployees.Any())
-                    throw new ArgumentException("Can't any employees");
+                    employees.FindAll(desiredEmployee => desiredEmployee.BossId == employee.Id);
                 foreach (var employer in desiredEmployees)
                 {
-                    employer.Boss = employee.Boss;
+                    employer.SetBoss(employee.Boss);
                 }
 
                 _context.Employees.Remove(employee);

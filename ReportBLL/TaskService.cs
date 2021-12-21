@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using ReportDal;
 
 namespace ReportBLL
@@ -16,7 +17,7 @@ namespace ReportBLL
 
         public Task FindTaskForNumber(int number)
         {
-            if (number <= 0)
+            if (number < 0)
                 throw new ArgumentException("Invalid task number");
             var tasks = _context.Tasks.ToList();
             Task desiredTask = tasks.SingleOrDefault(desiredTask => desiredTask.Number == number);
@@ -63,7 +64,7 @@ namespace ReportBLL
         
         public List<Task> FindTaskForEmployeeModification(Guid employeeId)
         {
-            var tasks = _context.Tasks.ToList();
+            var tasks = _context.Tasks.Include(task => task.Modifications).ToList();
             var desiredTasks = new List<Task>();
             foreach (Task task in tasks)
             {
@@ -98,11 +99,12 @@ namespace ReportBLL
             ChangeTaskEmployee(employee, task);
         }
 
-        public void AddComment(string comment, Guid taskId, Guid employeeId)
+        public Task AddComment(string comment, Guid taskId, Guid employeeId)
         {
             Employee employee = FindEmployeeById(employeeId);
             Task task = FindForId(taskId);
             AddComment(comment, task, employee);
+            return task;
         }
 
 
@@ -146,8 +148,10 @@ namespace ReportBLL
                 throw new ArgumentException("Null task");
             string content = "Status changed from " + task.Status + " to " + newStatus;
             task.ChangeStatus(newStatus);
-            var modification = new TaskModification{Content = content, CreatorId = task.EmployeeId, Time = DateTime.Now, Type = ChangeType.Type};
+            var modification = new TaskModification(ChangeType.Type, content, task);
             task.AddModification(modification);
+            _context.Add(modification);
+            _context.Update(task);
             _context.SaveChanges();
         }
         
@@ -159,12 +163,14 @@ namespace ReportBLL
                 throw new ArgumentException("Null task");
             string content = "Employee changed from " + task.EmployeeId + " to " + newEmployee.Id;
             task.ChangeEmployee(newEmployee);
-            var modification = new TaskModification{Content = content, CreatorId = task.EmployeeId, Time = DateTime.Now, Type = ChangeType.Employer};
+            var modification = new TaskModification(ChangeType.Employer, content, task);
             task.AddModification(modification);
+            _context.Add(modification);
+            _context.Update(task);
             _context.SaveChanges();
         }
         
-        private void AddComment(string comment, Task task, Employee employee)
+        private Task AddComment(string comment, Task task, Employee employee)
         {
             if (task is null)
                 throw new ArgumentException("Null task");
@@ -174,9 +180,12 @@ namespace ReportBLL
                 throw new ArgumentException("Null employee");
             string content = "Comment added " + comment;
             task.AddComment(comment);
-            var modification = new TaskModification{Content = content, CreatorId = employee.Id, Time = DateTime.Now, Type = ChangeType.Comment};
+            var modification = new TaskModification(ChangeType.Comment, content, task);
             task.AddModification(modification);
+            _context.Update(task);
+            _context.Add(modification);
             _context.SaveChanges();
+            return task;
         }
 
         private void SolveTask(Employee employee, Task task)
@@ -188,7 +197,10 @@ namespace ReportBLL
             if (task.EmployeeId != employee.Id)
                 throw new ArgumentException("This is not his task");
             task.ChangeStatus(TaskStatus.Resolved);
+            _context.Update(task);
             employee.Report.AddTask(task);
+            _context.Update(employee);
+            _context.SaveChanges();
         }
 
         private Employee FindEmployeeById(Guid Id)

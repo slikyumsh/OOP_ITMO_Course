@@ -15,9 +15,8 @@ namespace ReportBLL
         public Task CreateTask(string name, Guid employeeId);
         public void ChangeTaskStatus(TaskStatus newStatus, Guid taskId);
         public void ChangeTaskEmployee(Guid employeeId, Guid taskId);
-        public void AddComment(string comment, Guid taskId, Guid employeeId);
+        public Task AddComment(string comment, Guid taskId, Guid employeeId);
         public List<Task> GetAllTasks();
-        public Task GetTaskByNumber(int number);
         public void SolveTask(Guid employeeId, Guid taskId);
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ReportDal;
-using SQLitePCL;
 
 namespace ReportBLL
 {
@@ -49,13 +48,8 @@ namespace ReportBLL
         public void AddTaskToReport(Guid taskId, Guid reportId)
         {
             Report report = FindReportForId(reportId);
-            AddTaskToReport(taskId, report);
-        }
-        
-        private void AddTaskToReport(Guid taskId, Report report)
-        {
             Task task = FindTaskById(taskId);
-            report.ReportTasks.Add(task);
+            AddTaskToReport(task, report);
         }
 
         private void ChangeStatus(ReportStatus status, Report report)
